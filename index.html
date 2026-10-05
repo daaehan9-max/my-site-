@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PairMaker - 흑백 모노톤 최종 완성본</title>
+    <title>PairMaker - Fresh Clean Ver</title>
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <style>
@@ -13,7 +13,6 @@
             padding: 0;
         }
 
-        /* 흑백 모노톤 배경 */
         body {
             background-color: #dcdcdc;
             font-family: 'Pretendard', sans-serif;
@@ -26,7 +25,6 @@
             overflow-x: hidden;
         }
 
-        /* 상단 제어 패널 */
         .control-panel {
             background: #ffffff;
             border: 1px solid #999999;
@@ -71,14 +69,12 @@
         .btn-delete-page { border-color: #c93b3b !important; color: #c93b3b !important; }
         .btn-delete-page:hover { background-color: #c93b3b !important; color: #ffffff !important; }
 
-        /* 문서 컨테이너 */
         .document-container {
             display: flex;
             justify-content: center;
             width: 100%;
         }
 
-        /* A4 규격 (794px × 1123px) */
         .a4-page {
             width: 794px;
             height: 1123px;
@@ -96,7 +92,6 @@
             display: flex;
         }
 
-        /* 템플릿 내부 레이아웃 */
         .template-header {
             display: flex;
             flex-direction: column;
@@ -105,7 +100,6 @@
             flex-shrink: 0;
         }
 
-        /* 그림 칸 */
         .image-box {
             width: 100%;
             height: 135px; 
@@ -133,9 +127,8 @@
             padding: 0 10px;
         }
 
-        /* 작가이름, 커미주 */
         .author-info {
-            font-family: 'Pretendard', sans-serif;
+            font-family: 'Pretendard', sans-serif !important;
             text-align: right;
             font-size: 15px;
             color: #222222;
@@ -148,22 +141,21 @@
             border-radius: 4px;
         }
 
-        /* 제목 및 부제목 (폰트 확실히 적용) */
         .title-area {
             margin-bottom: 6px;
         }
         .main-title {
             font-family: 'Pretendard', sans-serif !important;
-            font-size: 26px;
-            font-weight: 900;
+            font-size: 26px !important;
+            font-weight: 900 !important;
             color: #000000;
             outline: none;
             margin-bottom: 4px;
         }
         .sub-title {
             font-family: 'Pretendard', sans-serif !important;
-            font-size: 17px;
-            font-weight: 700;
+            font-size: 17px !important;
+            font-weight: 700 !important;
             color: #333333;
             outline: none;
         }
@@ -172,7 +164,6 @@
             border-radius: 4px;
         }
 
-        /* 본문 내용 영역 */
         .content-area {
             font-family: 'Gowun Batang', serif;
             font-size: 18px;
@@ -191,7 +182,6 @@
             background: #eaeaea;
         }
 
-        /* 인쇄 및 PDF 저장 시 적용되는 핵심 스타일 */
         @media print {
             body { 
                 background: none !important; 
@@ -223,7 +213,6 @@
 </head>
 <body>
 
-    <!-- 상단 제어 바 -->
     <div class="control-panel">
         <button id="prevBtn" onclick="changePage(-1)">‹ 이전</button>
         <span id="pageIndicator" class="page-indicator">1 / 1</span>
@@ -233,19 +222,21 @@
         <button class="btn-print-save" onclick="window.print()">PDF로 저장</button>
     </div>
 
-    <!-- 문서 컨테이너 -->
     <div id="documentContainer" class="document-container"></div>
 
     <input type="file" id="imageSelector" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
 
     <script>
-        let pagesData = JSON.parse(localStorage.getItem('pairmaker_pure_print')) || [
+        // 완전히 새로운 스토리지 키 사용 (캐시 문제 원천 차단)
+        const STORAGE_KEY = 'pairmaker_v9_clean_storage';
+
+        let pagesData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
             {
                 image: '',
                 author: '작가이름, 커미주',
                 title: '흑백 모노톤 제목 (두껍게)',
                 subtitle: '부제목 영역입니다',
-                content: '상단의 [PDF로 저장] 버튼을 누르면 모바일/PC 브라우저 인쇄 창이 열립니다. 대상 프린터를 [PDF로 저장]으로 선택하시면 오류 없이 완벽한 PDF 파일로 저장됩니다.'
+                content: '이모티콘과 폰트, 저장 문제가 모두 해결된 최신 버전입니다. 상단의 [PDF로 저장] 버튼을 눌러 확인해 보세요.'
             }
         ];
 
@@ -414,7 +405,7 @@
         }
 
         function saveData() {
-            localStorage.setItem('pairmaker_pure_print', JSON.stringify(pagesData));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(pagesData));
         }
 
         window.onload = () => {
