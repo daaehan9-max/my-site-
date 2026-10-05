@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PairMaker - 반응형 템플릿</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PairMaker - 모바일 최적화 템플릿</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Pretendard:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
@@ -13,26 +13,31 @@
             padding: 0;
         }
 
-        body {
-            font-family: 'Pretendard', sans-serif;
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
             background-color: #e2e8f0;
+            font-family: 'Pretendard', sans-serif;
             color: #1a202c;
+        }
+
+        body {
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 15px;
+            padding: 10px;
         }
 
         /* 상단 제어 패널 */
         .control-panel {
             background: #ffffff;
-            padding: 10px 16px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 15px;
             z-index: 100;
             width: 100%;
             max-width: 740px;
@@ -40,13 +45,12 @@
         }
 
         .control-panel button {
-            padding: 8px 14px;
+            padding: 8px 12px;
             border: none;
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s;
+            font-size: 13px;
         }
 
         .btn-add { background-color: #4f46e5; color: white; }
@@ -57,21 +61,21 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px;
+            gap: 20px;
             width: 100%;
             max-width: 740px;
         }
 
-        /* A4 페이지 카드형 반응형 프레임 (모바일 잘림 방지) */
+        /* A4 페이지 카드형 반응형 프레임 (카톡 잘림 완벽 차단) */
         .a4-page {
             width: 100%;
             background: #ffffff;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            padding: 40px 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 25px 20px;
             display: flex;
             flex-direction: column;
             position: relative;
-            border-radius: 8px;
+            border-radius: 6px;
         }
 
         @media (min-width: 768px) {
@@ -86,14 +90,14 @@
         .template-header {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         /* 사진/그림 박스 */
         .image-box {
             width: 100%;
-            height: 220px;
+            height: 200px;
             background: #f1f5f9;
             border: 2px dashed #cbd5e1;
             border-radius: 6px;
@@ -116,7 +120,7 @@
         .image-box span {
             color: #64748b;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             text-align: center;
             padding: 0 10px;
         }
@@ -124,7 +128,7 @@
         /* 작가이름, 커미주 */
         .author-info {
             text-align: right;
-            font-size: 14px;
+            font-size: 13px;
             color: #475569;
             font-weight: 600;
             outline: none;
@@ -137,10 +141,10 @@
 
         /* 제목 및 부제목 */
         .title-area {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         .main-title {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             color: #0f172a;
             outline: none;
@@ -151,7 +155,7 @@
         }
 
         .sub-title {
-            font-size: 15px;
+            font-size: 14px;
             color: #475569;
             outline: none;
         }
@@ -163,8 +167,8 @@
         /* 본문 내용 영역 */
         .content-area {
             font-family: 'Noto Serif KR', serif;
-            font-size: 15px;
-            line-height: 1.9;
+            font-size: 14px;
+            line-height: 1.8;
             color: #1e293b;
             text-align: justify;
             word-break: break-all;
@@ -172,7 +176,10 @@
             outline: none;
             flex-grow: 1;
             padding: 4px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+        }
+        @media (min-width: 768px) {
+            .content-area { font-size: 15px; line-height: 1.9; }
         }
         .content-area:focus {
             background: #f8fafc;
@@ -185,16 +192,16 @@
             justify-content: space-between;
             align-items: center;
             border-top: 1px solid #e2e8f0;
-            padding-top: 12px;
-            height: 40px;
-            font-size: 13px;
+            padding-top: 10px;
+            height: 35px;
+            font-size: 12px;
             color: #64748b;
         }
 
         .nav-btn {
             background: none;
             border: 1px solid #cbd5e1;
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: 600;
@@ -230,7 +237,7 @@
                 author: '작가이름, 커미주',
                 title: '제목을 입력하세요',
                 subtitle: '부제 및 상세 설명을 입력하세요',
-                content: '여기에 내용을 작성하세요. 양쪽 정렬과 깔끔한 명조체 폰트가 적용되어 가독성이 뛰어납니다.'
+                content: '여기에 내용을 작성하세요. 카카오톡 및 모바일 화면에서도 잘림 없이 반응형으로 깔끔하게 표시됩니다.'
             }
         ];
 
