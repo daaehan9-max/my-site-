@@ -3,297 +3,426 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PairMaker - Zero Error</title>
+    <title>PairMaker - 표준 인쇄 PDF 최종 완성본</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 흑백 모노톤 배경 */
         body {
-            background-color: #222222;
-            font-family: 'Malgun Gothic', sans-serif;
+            background-color: #dcdcdc;
+            font-family: 'Pretendard', sans-serif;
+            color: #111111;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 20px 10px;
+            padding: 15px 10px 60px 10px;
+            overflow-x: hidden;
         }
-        .top-bar {
+
+        /* 상단 제어 패널 */
+        .control-panel {
             background: #ffffff;
-            padding: 12px 20px;
+            border: 1px solid #999999;
+            padding: 10px 16px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             display: flex;
-            gap: 10px;
             align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            gap: 10px;
+            margin-bottom: 20px;
             position: sticky;
             top: 10px;
-            z-index: 100;
+            z-index: 1000;
         }
-        button, label {
-            padding: 8px 14px;
-            background: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+
+        .control-panel button {
+            padding: 8px 12px;
+            border: 1px solid #222222;
+            border-radius: 6px;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: bold;
             font-size: 13px;
+            background-color: #ffffff;
+            color: #111111;
+            transition: all 0.2s;
         }
-        button:hover, label:hover { background: #e0e0e0; }
-        .btn-action { background: #000; color: #fff; border: none; }
-        .btn-action:hover { background: #333; }
-        .btn-del { color: #d9534f; border-color: #d9534f; }
-        
-        .sheet {
+        .control-panel button:hover { background-color: #111111; color: #ffffff; }
+        .control-panel button:disabled { border-color: #cccccc; background-color: #f0f0f0; color: #aaaaaa; cursor: not-allowed; }
+
+        .page-indicator {
+            font-weight: 700;
+            font-size: 14px;
+            color: #222222;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .btn-print-save { background-color: #111111 !important; color: #ffffff !important; }
+        .btn-print-save:hover { background-color: #333333 !important; }
+
+        .btn-delete-page { border-color: #c93b3b !important; color: #c93b3b !important; }
+        .btn-delete-page:hover { background-color: #c93b3b !important; color: #ffffff !important; }
+
+        /* 문서 컨테이너 */
+        .document-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* A4 규격 (794px × 1123px) */
+        .a4-page {
             width: 794px;
             height: 1123px;
-            background: #fff;
-            padding: 60px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: #ffffff;
+            border: 1px solid #b5b5b5;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            padding: 55px 65px;
             display: none;
             flex-direction: column;
             position: relative;
+            border-radius: 2px;
         }
-        .sheet.active { display: flex; }
 
-        .img-placeholder {
+        .a4-page.active {
+            display: flex;
+        }
+
+        /* 템플릿 내부 레이아웃 */
+        .template-header {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        /* 그림 칸 */
+        .image-box {
             width: 100%;
-            height: 150px;
-            border: 2px dashed #aaa;
-            background: #fafafa;
+            height: 135px; 
+            background: #f7f7f7;
+            border: 2px dashed #666666;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #666;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 15px;
             overflow: hidden;
             position: relative;
+            cursor: pointer;
         }
-        .img-placeholder img { width: 100%; height: 100%; object-fit: cover; }
 
-        .meta-author {
-            text-align: right;
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-box span {
+            color: #333333;
+            font-weight: 600;
             font-size: 14px;
-            font-weight: bold;
-            color: #444;
-            margin-bottom: 10px;
-            outline: none;
-            padding: 4px;
+            text-align: center;
+            padding: 0 10px;
         }
-        .meta-author:focus { background: #f0f0f0; }
 
-        .title-box { margin-bottom: 15px; }
-        .title-main { font-size: 24px; font-weight: bold; color: #111; outline: none; margin-bottom: 5px; }
-        .title-sub { font-size: 16px; font-weight: bold; color: #555; outline: none; }
-        .title-main:focus, .title-sub:focus { background: #f0f0f0; }
-
-        .text-body {
-            font-family: serif;
-            font-size: 16px;
-            line-height: 1.8;
-            color: #222;
-            flex-grow: 1;
+        /* 작가이름, 커미주 */
+        .author-info {
+            text-align: right;
+            font-size: 15px;
+            color: #222222;
+            font-weight: 600;
             outline: none;
-            overflow-y: auto;
-            white-space: pre-wrap;
+            padding: 2px;
+        }
+        .author-info:focus {
+            background: #eaeaea;
+            border-radius: 4px;
+        }
+
+        /* 제목 및 부제목 */
+        .title-area {
+            margin-bottom: 6px;
+        }
+        .main-title {
+            font-family: 'Pretendard', sans-serif;
+            font-size: 26px;
+            font-weight: 900;
+            color: #000000;
+            outline: none;
+            margin-bottom: 4px;
+        }
+        .sub-title {
+            font-family: 'Pretendard', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: #333333;
+            outline: none;
+        }
+        .main-title:focus, .sub-title:focus {
+            background: #eaeaea;
+            border-radius: 4px;
+        }
+
+        /* 본문 내용 영역 */
+        .content-area {
+            font-family: 'Gowun Batang', serif;
+            font-size: 18px;
+            line-height: 1.85;
+            color: #111111;
+            text-align: justify;
             word-break: break-all;
-            padding: 5px;
+            white-space: pre-wrap;
+            outline: none;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 6px;
+            border-radius: 4px;
         }
-        .text-body:focus { background: #fafafa; }
+        .content-area:focus {
+            background: #eaeaea;
+        }
 
+        /* 인쇄 및 PDF 저장 시 적용되는 핵심 스타일 */
         @media print {
-            body { background: none; padding: 0; }
-            .top-bar { display: none; }
-            .sheet { display: flex !important; box-shadow: none; border: none; margin: 0; width: 100%; height: 100vh; page-break-after: always; }
+            body { 
+                background: none !important; 
+                padding: 0 !important; 
+            }
+            .control-panel { 
+                display: none !important; 
+            }
+            .document-container { 
+                display: block !important; 
+            }
+            .a4-page { 
+                display: flex !important;
+                border: none !important;
+                box-shadow: none !important; 
+                margin: 0 !important; 
+                zoom: 1 !important;
+                page-break-after: always; 
+                width: 100% !important;
+                height: 100vh !important;
+                position: relative !important;
+                padding: 40px !important;
+            }
+            /* 인쇄 시 마지막 페이지 불필요한 빈 공백 페이지 방지 */
+            .a4-page:last-child {
+                page-break-after: avoid;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <button onclick="movePage(-1)">◀ 이전</button>
-        <span id="pageInfo" style="font-weight:bold; min-width:40px; text-align:center;">1 / 1</span>
-        <button onclick="movePage(1)">다음 ▶</button>
-        <button onclick="addPage()">➕ 페이지 추가</button>
-        <button class="btn-del" onclick="delPage()">삭제</button>
-        <button onclick="saveFile()">💾 백업저장</button>
-        <label for="loadFile">📂 불러오기</label>
-        <input type="file" id="loadFile" accept=".json" style="display:none;" onchange="loadJSON(event)">
-        <button class="btn-action" onclick="window.print()">🖨️ PDF / 인쇄</button>
+    <!-- 상단 제어 바 -->
+    <div class="control-panel">
+        <button id="prevBtn" onclick="changePage(-1)">‹ 이전</button>
+        <span id="pageIndicator" class="page-indicator">1 / 1</span>
+        <button id="nextBtn" onclick="changePage(1)">다음 ›</button>
+        <button onclick="addPage()">＋ 추가</button>
+        <button class="btn-delete-page" onclick="deleteCurrentPage()">삭제</button>
+        <button class="btn-print-save" onclick="window.print()">🖨 PDF로 저장</button>
     </div>
 
-    <div id="canvas"></div>
+    <!-- 문서 컨테이너 -->
+    <div id="documentContainer" class="document-container"></div>
 
-    <input type="file" id="imgLoader" accept="image/*" style="display:none;" onchange="imageSelected(event)">
+    <input type="file" id="imageSelector" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
 
     <script>
-        // 전개 데이터 구조
-        let data = [
-            { img: "", author: "작가 이름", title: "제목을 입력하세요", sub: "부제목을 입력하세요", content: "내용을 입력하세요..." }
+        let pagesData = JSON.parse(localStorage.getItem('pairmaker_pure_print')) || [
+            {
+                image: '',
+                author: '작가이름, 커미주',
+                title: '흑백 모노톤 제목 (두껍게)',
+                subtitle: '부제목 영역입니다',
+                content: '상단의 [🖨 PDF로 저장] 버튼을 누르면 모바일/PC 브라우저 인쇄 창이 열립니다. 거기서 대상 프린터를 [PDF로 저장]으로 선택하시면 오류 없이 완벽한 PDF 파일로 저장됩니다.'
+            }
         ];
-        let curIdx = 0;
-        let targetImgIdx = null;
 
-        // 즉시 자동 저장 시스템 (localStorage 예외 처리 포함)
-        function persist() {
-            try {
-                localStorage.setItem('pairmaker_zero_v1', JSON.stringify(data));
-            } catch(e) {}
+        let currentPageIndex = 0;
+        let activeImagePageIndex = null;
+
+        function adjustA4Zoom() {
+            const pages = document.querySelectorAll('.a4-page');
+            const screenWidth = window.innerWidth - 20;
+            
+            pages.forEach(page => {
+                if (screenWidth < 794) {
+                    let zoomRatio = screenWidth / 794;
+                    page.style.zoom = zoomRatio;
+                } else {
+                    page.style.zoom = '1';
+                }
+            });
         }
 
-        // 데이터 복구 시도
-        try {
-            const saved = localStorage.getItem('pairmaker_zero_v1');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) data = parsed;
-            }
-        } catch(e) {}
+        function renderDocument() {
+            const container = document.getElementById('documentContainer');
+            container.innerHTML = '';
 
-        function render() {
-            const box = document.getElementById('canvas');
-            box.innerHTML = '';
+            let totalPages = pagesData.length;
+            if (currentPageIndex >= totalPages) currentPageIndex = totalPages - 1;
+            if (currentPageIndex < 0) currentPageIndex = 0;
 
-            if (curIdx >= data.length) curIdx = data.length - 1;
-            if (curIdx < 0) curIdx = 0;
+            pagesData.forEach((pageData, index) => {
+                let pageEl = createPageElement(index, pageData);
+                if (index === currentPageIndex) {
+                    pageEl.classList.add('active');
+                }
+                container.appendChild(pageEl);
+            });
 
-            const item = data[curIdx];
+            document.getElementById('pageIndicator').innerText = `${currentPageIndex + 1} / ${totalPages}`;
+            document.getElementById('prevBtn').disabled = currentPageIndex === 0;
+            document.getElementById('nextBtn').disabled = currentPageIndex === totalPages - 1;
 
-            const sheet = document.createElement('div');
-            sheet.className = 'sheet active';
+            adjustA4Zoom();
+            saveData();
+        }
 
-            // 이미지 영역
-            const imgDiv = document.createElement('div');
-            imgDiv.className = 'img-placeholder';
-            if (item.img) {
-                const img = document.createElement('img');
-                img.src = item.img;
-                imgDiv.appendChild(img);
+        function createPageElement(index, data) {
+            let pageDiv = document.createElement('div');
+            pageDiv.className = 'a4-page';
+
+            let headerDiv = document.createElement('div');
+            headerDiv.className = 'template-header';
+
+            let imgBox = document.createElement('div');
+            imgBox.className = 'image-box';
+            if (data.image) {
+                let img = document.createElement('img');
+                img.src = data.image;
+                imgBox.appendChild(img);
             } else {
-                imgDiv.innerText = '클릭하여 이미지 삽입';
+                let span = document.createElement('span');
+                span.innerText = '사진 / 그림을 추가하려면 클릭하세요';
+                imgBox.appendChild(span);
             }
-            imgDiv.onclick = () => {
-                targetImgIdx = curIdx;
-                document.getElementById('imgLoader').click();
+            imgBox.onclick = () => {
+                activeImagePageIndex = index;
+                document.getElementById('imageSelector').click();
             };
-            sheet.appendChild(imgDiv);
+            headerDiv.appendChild(imgBox);
 
-            // 작가 정보
-            const authorDiv = document.createElement('div');
-            authorDiv.className = 'meta-author';
+            let authorDiv = document.createElement('div');
+            authorDiv.className = 'author-info';
             authorDiv.contentEditable = true;
-            authorDiv.innerText = item.author;
-            authorDiv.oninput = (e) => { data[curIdx].author = e.target.innerText; persist(); };
-            sheet.appendChild(authorDiv);
+            authorDiv.innerText = data.author;
+            authorDiv.oninput = (e) => {
+                pagesData[index].author = e.target.innerText;
+                saveData();
+            };
+            headerDiv.appendChild(authorDiv);
 
-            // 타이틀 영역
-            const titleWrap = document.createElement('div');
-            titleWrap.className = 'title-box';
+            let titleArea = document.createElement('div');
+            titleArea.className = 'title-area';
 
-            const mTitle = document.createElement('div');
-            mTitle.className = 'title-main';
-            mTitle.contentEditable = true;
-            mTitle.innerText = item.title;
-            mTitle.oninput = (e) => { data[curIdx].title = e.target.innerText; persist(); };
+            let titleInput = document.createElement('div');
+            titleInput.className = 'main-title';
+            titleInput.contentEditable = true;
+            titleInput.innerText = data.title;
+            titleInput.oninput = (e) => {
+                pagesData[index].title = e.target.innerText;
+                saveData();
+            };
 
-            const sTitle = document.createElement('div');
-            sTitle.className = 'title-sub';
-            sTitle.contentEditable = true;
-            sTitle.innerText = item.sub;
-            sTitle.oninput = (e) => { data[curIdx].sub = e.target.innerText; persist(); };
+            let subTitleInput = document.createElement('div');
+            subTitleInput.className = 'sub-title';
+            subTitleInput.contentEditable = true;
+            subTitleInput.innerText = data.subtitle;
+            subTitleInput.oninput = (e) => {
+                pagesData[index].subtitle = e.target.innerText;
+                saveData();
+            };
 
-            titleWrap.appendChild(mTitle);
-            titleWrap.appendChild(sTitle);
-            sheet.appendChild(titleWrap);
+            titleArea.appendChild(titleInput);
+            titleArea.appendChild(subTitleInput);
+            headerDiv.appendChild(titleArea);
 
-            // 본문 영역
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'text-body';
+            pageDiv.appendChild(headerDiv);
+
+            let contentDiv = document.createElement('div');
+            contentDiv.className = 'content-area';
             contentDiv.contentEditable = true;
-            contentDiv.innerText = item.content;
-            contentDiv.oninput = (e) => { data[curIdx].content = e.target.innerText; persist(); };
-            sheet.appendChild(contentDiv);
+            contentDiv.innerText = data.content;
+            contentDiv.oninput = (e) => {
+                pagesData[index].content = e.target.innerText;
+                saveData();
+            };
+            pageDiv.appendChild(contentDiv);
 
-            box.appendChild(sheet);
-
-            // 상태바 갱신
-            document.getElementById('pageInfo').innerText = `${curIdx + 1} / ${data.length}`;
+            return pageDiv;
         }
 
-        function movePage(dir) {
-            if (curIdx + dir >= 0 && curIdx + dir < data.length) {
-                curIdx += dir;
-                render();
+        function changePage(direction) {
+            let newIndex = currentPageIndex + direction;
+            if (newIndex >= 0 && newIndex < pagesData.length) {
+                currentPageIndex = newIndex;
+                renderDocument();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
 
-        function addPage() {
-            data.push({ img: "", author: "작가 이름", title: "새 제목", sub: "새 부제목", content: "내용..." });
-            curIdx = data.length - 1;
-            render();
-            persist();
-        }
-
-        function delPage() {
-            if (data.length <= 1) {
-                alert('최소 1개의 페이지는 있어야 합니다.');
-                return;
-            }
-            if (confirm('이 페이지를 삭제하시겠습니까?')) {
-                data.splice(curIdx, 1);
-                if (curIdx >= data.length) curIdx = data.length - 1;
-                render();
-                persist();
-            }
-        }
-
-        function imageSelected(e) {
-            const file = e.target.files[0];
-            if (file && targetImgIdx !== null) {
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    data[targetImgIdx].img = evt.target.result;
-                    render();
-                    persist();
+        function handleImageUpload(event) {
+            let file = event.target.files[0];
+            if (file && activeImagePageIndex !== null) {
+                let reader = new FileReader();
+                reader.onload = (e) => {
+                    pagesData[activeImagePageIndex].image = e.target.result;
+                    renderDocument();
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function saveFile() {
-            const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = "pairmaker_backup.json";
-            a.click();
+        function addPage() {
+            pagesData.push({
+                image: '',
+                author: '작가이름, 커미주',
+                title: '새로운 제목',
+                subtitle: '부제목',
+                content: '새로운 페이지의 내용입니다.'
+            });
+            currentPageIndex = pagesData.length - 1;
+            renderDocument();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function loadJSON(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    try {
-                        const parsed = JSON.parse(evt.target.result);
-                        if (Array.isArray(parsed)) {
-                            data = parsed;
-                            curIdx = 0;
-                            render();
-                            persist();
-                            alert('정상적으로 불러왔습니다!');
-                        }
-                    } catch(err) {
-                        alert('파일이 손상되었거나 형식이 잘못되었습니다.');
-                    }
-                };
-                reader.readAsText(file);
+        function deleteCurrentPage() {
+            if (pagesData.length <= 1) {
+                alert('최소 1개의 페이지는 유지되어야 합니다.');
+                return;
+            }
+            if (confirm('현재 페이지를 삭제하시겠습니까?')) {
+                pagesData.splice(currentPageIndex, 1);
+                if (currentPageIndex >= pagesData.length) {
+                    currentPageIndex = pagesData.length - 1;
+                }
+                renderDocument();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
 
-        // 초기 구동
-        window.onload = render;
+        function saveData() {
+            localStorage.setItem('pairmaker_pure_print', JSON.stringify(pagesData));
+        }
+
+        window.onload = () => {
+            renderDocument();
+        };
+
+        window.onresize = () => {
+            adjustA4Zoom();
+        };
     </script>
 </body>
 </html>
