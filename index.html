@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PairMaker - Perfect Storage Fix</title>
+    <title>PairMaker - Ultra Safe</title>
     
     <style>
         * {
@@ -56,13 +56,6 @@
         }
         .control-panel button:hover, .control-panel label:hover { background-color: #111111; color: #ffffff; }
         .control-panel button:disabled { border-color: #cccccc; background-color: #f0f0f0; color: #aaaaaa; cursor: not-allowed; }
-
-        .status-msg {
-            font-size: 11px;
-            color: #008000;
-            font-weight: 700;
-            margin-left: 5px;
-        }
 
         .page-indicator {
             font-weight: 700;
@@ -208,7 +201,6 @@
         <label for="importFileBtn">📂 불러오기</label>
         <input type="file" id="importFileBtn" accept=".json" style="display:none;" onchange="importDataFile(event)">
         <button class="btn-print-save" onclick="window.print()">PDF로 저장</button>
-        <span id="statusMsg" class="status-msg">저장됨</span>
     </div>
 
     <div id="documentContainer" class="document-container"></div>
@@ -216,96 +208,41 @@
     <input type="file" id="imageSelector" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
 
     <script>
-        let db = null;
-        const DB_NAME = 'PairMakerDB';
-        const STORE_NAME = 'documents';
-        
+        const STORAGE_KEY = 'pairmaker_safe_v1';
+
+        // 기본 데이터 설정
         let pagesData = [
             {
                 image: '',
                 author: '작가이름, 커미주',
                 title: '흑백 모노톤 제목',
                 subtitle: '부제목 영역입니다',
-                content: '여기에 내용을 입력하세요. 입력 즉시 안전하게 자동 저장됩니다.'
+                content: '여기에 내용을 입력하세요. 입력하는 순간 자동으로 저장됩니다.'
             }
         ];
 
+        // 안전하게 데이터 불러오기
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    pagesData = parsed;
+                }
+            }
+        } catch (e) {
+            console.log("Storage load error ignored");
+        }
+
         let currentPageIndex = 0;
         let activeImagePageIndex = null;
-        let saveTimer = null;
-
-        // IndexedDB 초기화 (강력한 저장소)
-        function initDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, 1);
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => {
-                    db = request.result;
-                    resolve(db);
-                };
-                request.onupgradeneeded = (event) => {
-                    const database = event.target.result;
-                    if (!database.objectStoreNames.contains(STORE_NAME)) {
-                        database.createObjectStore(STORE_NAME);
-                    }
-                };
-            });
-        }
-
-        function loadFromDB() {
-            return new Promise((resolve) => {
-                if (!db) {
-                    resolve(false);
-                    return;
-                }
-                try {
-                    const transaction = db.transaction(STORE_NAME, 'readonly');
-                    const store = transaction.objectStore(STORE_NAME);
-                    const request = store.get('pagesData');
-                    request.onsuccess = () => {
-                        if (request.result) {
-                            pagesData = request.result;
-                            resolve(true);
-                        } else {
-                            resolve(false);
-                        }
-                    };
-                    request.onerror = () => resolve(false);
-                } catch (e) {
-                    resolve(false);
-                }
-            });
-        }
 
         function autoSave() {
-            showStatus('저장 중...');
-            clearTimeout(saveTimer);
-            saveTimer = setTimeout(() => {
-                // 1차 백업: localStorage
-                try {
-                    localStorage.setItem('pairmaker_fallback', JSON.stringify(pagesData));
-                } catch (e) {}
-
-                // 2차 백업: IndexedDB
-                if (db) {
-                    try {
-                        const transaction = db.transaction(STORE_NAME, 'readwrite');
-                        const store = transaction.objectStore(STORE_NAME);
-                        store.put(pagesData, 'pagesData');
-                        transaction.oncomplete = () => showStatus('저장됨');
-                        transaction.onerror = () => showStatus('저장 완료');
-                    } catch (e) {
-                        showStatus('저장 완료');
-                    }
-                } else {
-                    showStatus('저장 완료');
-                }
-            }, 300);
-        }
-
-        function showStatus(text) {
-            const msg = document.getElementById('statusMsg');
-            if (msg) msg.innerText = text;
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(pagesData));
+            } catch (e) {
+                console.log("Storage save error ignored");
+            }
         }
 
         function adjustA4Zoom() {
@@ -322,6 +259,7 @@
 
         function renderDocument() {
             const container = document.getElementById('documentContainer');
+            if (!container) return;
             container.innerHTML = '';
 
             if (currentPageIndex >= pagesData.length) currentPageIndex = pagesData.length - 1;
@@ -335,9 +273,13 @@
                 container.appendChild(pageEl);
             });
 
-            document.getElementById('pageIndicator').innerText = `${currentPageIndex + 1} / ${pagesData.length}`;
-            document.getElementById('prevBtn').disabled = currentPageIndex === 0;
-            document.getElementById('nextBtn').disabled = currentPageIndex === pagesData.length - 1;
+            const indicator = document.getElementById('pageIndicator');
+            if (indicator) indicator.innerText = `${currentPageIndex + 1} / ${pagesData.length}`;
+            
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            if (prevBtn) prevBtn.disabled = currentPageIndex === 0;
+            if (nextBtn) nextBtn.disabled = currentPageIndex === pagesData.length - 1;
 
             adjustA4Zoom();
         }
@@ -369,7 +311,7 @@
             let authorDiv = document.createElement('div');
             authorDiv.className = 'author-info';
             authorDiv.contentEditable = true;
-            authorDiv.innerText = data.author;
+            authorDiv.innerText = data.author || '';
             authorDiv.oninput = (e) => {
                 pagesData[index].author = e.target.innerText;
                 autoSave();
@@ -382,7 +324,7 @@
             let titleInput = document.createElement('div');
             titleInput.className = 'main-title';
             titleInput.contentEditable = true;
-            titleInput.innerText = data.title;
+            titleInput.innerText = data.title || '';
             titleInput.oninput = (e) => {
                 pagesData[index].title = e.target.innerText;
                 autoSave();
@@ -391,7 +333,7 @@
             let subTitleInput = document.createElement('div');
             subTitleInput.className = 'sub-title';
             subTitleInput.contentEditable = true;
-            subTitleInput.innerText = data.subtitle;
+            subTitleInput.innerText = data.subtitle || '';
             subTitleInput.oninput = (e) => {
                 pagesData[index].subtitle = e.target.innerText;
                 autoSave();
@@ -405,7 +347,7 @@
             let contentDiv = document.createElement('div');
             contentDiv.className = 'content-area';
             contentDiv.contentEditable = true;
-            contentDiv.innerText = data.content;
+            contentDiv.innerText = data.content || '';
             contentDiv.oninput = (e) => {
                 pagesData[index].content = e.target.innerText;
                 autoSave();
@@ -468,13 +410,17 @@
         }
 
         function exportDataFile() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pagesData));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "pairmaker_backup.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
+            try {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pagesData));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", "pairmaker_backup.json");
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+            } catch (e) {
+                alert('백업 파일 다운로드 중 오류가 발생했습니다.');
+            }
         }
 
         function importDataFile(event) {
@@ -499,27 +445,12 @@
             }
         }
 
-        window.onload = async () => {
-            try {
-                await initDB();
-                const loaded = await loadFromDB();
-                if (!loaded) {
-                    // DB에 없으면 localStorage 백업 확인
-                    const fallback = localStorage.getItem('pairmaker_fallback');
-                    if (fallback) {
-                        const parsed = JSON.parse(fallback);
-                        if (Array.isArray(parsed) && parsed.length > 0) {
-                            pagesData = parsed;
-                        }
-                    }
-                }
-            } catch (e) {
-                console.log("Storage load fallback active");
-            }
+        // 실행 보장
+        window.onload = function() {
             renderDocument();
         };
 
-        window.onresize = () => {
+        window.onresize = function() {
             adjustA4Zoom();
         };
     </script>
