@@ -1,1 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PairMaker - Zero Error</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #222222;
+            font-family: 'Malgun Gothic', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 10px;
+        }
+        .top-bar {
+            background: #ffffff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+        }
+        button, label {
+            padding: 8px 14px;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        button:hover, label:hover { background: #e0e0e0; }
+        .btn-action { background: #000; color: #fff; border: none; }
+        .btn-action:hover { background: #333; }
+        .btn-del { color: #d9534f; border-color: #d9534f; }
+        
+        .sheet {
+            width: 794px;
+            height: 1123px;
+            background: #fff;
+            padding: 60px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none;
+            flex-direction: column;
+            position: relative;
+        }
+        .sheet.active { display: flex; }
 
+        .img-placeholder {
+            width: 100%;
+            height: 150px;
+            border: 2px dashed #aaa;
+            background: #fafafa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        .img-placeholder img { width: 100%; height: 100%; object-fit: cover; }
+
+        .meta-author {
+            text-align: right;
+            font-size: 14px;
+            font-weight: bold;
+            color: #444;
+            margin-bottom: 10px;
+            outline: none;
+            padding: 4px;
+        }
+        .meta-author:focus { background: #f0f0f0; }
+
+        .title-box { margin-bottom: 15px; }
+        .title-main { font-size: 24px; font-weight: bold; color: #111; outline: none; margin-bottom: 5px; }
+        .title-sub { font-size: 16px; font-weight: bold; color: #555; outline: none; }
+        .title-main:focus, .title-sub:focus { background: #f0f0f0; }
+
+        .text-body {
+            font-family: serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #222;
+            flex-grow: 1;
+            outline: none;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            padding: 5px;
+        }
+        .text-body:focus { background: #fafafa; }
+
+        @media print {
+            body { background: none; padding: 0; }
+            .top-bar { display: none; }
+            .sheet { display: flex !important; box-shadow: none; border: none; margin: 0; width: 100%; height: 100vh; page-break-after: always; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button onclick="movePage(-1)">◀ 이전</button>
+        <span id="pageInfo" style="font-weight:bold; min-width:40px; text-align:center;">1 / 1</span>
+        <button onclick="movePage(1)">다음 ▶</button>
+        <button onclick="addPage()">➕ 페이지 추가</button>
+        <button class="btn-del" onclick="delPage()">삭제</button>
+        <button onclick="saveFile()">💾 백업저장</button>
+        <label for="loadFile">📂 불러오기</label>
+        <input type="file" id="loadFile" accept=".json" style="display:none;" onchange="loadJSON(event)">
+        <button class="btn-action" onclick="window.print()">🖨️ PDF / 인쇄</button>
+    </div>
+
+    <div id="canvas"></div>
+
+    <input type="file" id="imgLoader" accept="image/*" style="display:none;" onchange="imageSelected(event)">
+
+    <script>
+        // 전개 데이터 구조
+        let data = [
+            { img: "", author: "작가 이름", title: "제목을 입력하세요", sub: "부제목을 입력하세요", content: "내용을 입력하세요..." }
+        ];
+        let curIdx = 0;
+        let targetImgIdx = null;
+
+        // 즉시 자동 저장 시스템 (localStorage 예외 처리 포함)
+        function persist() {
+            try {
+                localStorage.setItem('pairmaker_zero_v1', JSON.stringify(data));
+            } catch(e) {}
+        }
+
+        // 데이터 복구 시도
+        try {
+            const saved = localStorage.getItem('pairmaker_zero_v1');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) data = parsed;
+            }
+        } catch(e) {}
+
+        function render() {
+            const box = document.getElementById('canvas');
+            box.innerHTML = '';
+
+            if (curIdx >= data.length) curIdx = data.length - 1;
+            if (curIdx < 0) curIdx = 0;
+
+            const item = data[curIdx];
+
+            const sheet = document.createElement('div');
+            sheet.className = 'sheet active';
+
+            // 이미지 영역
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'img-placeholder';
+            if (item.img) {
+                const img = document.createElement('img');
+                img.src = item.img;
+                imgDiv.appendChild(img);
+            } else {
+                imgDiv.innerText = '클릭하여 이미지 삽입';
+            }
+            imgDiv.onclick = () => {
+                targetImgIdx = curIdx;
+                document.getElementById('imgLoader').click();
+            };
+            sheet.appendChild(imgDiv);
+
+            // 작가 정보
+            const authorDiv = document.createElement('div');
+            authorDiv.className = 'meta-author';
+            authorDiv.contentEditable = true;
+            authorDiv.innerText = item.author;
+            authorDiv.oninput = (e) => { data[curIdx].author = e.target.innerText; persist(); };
+            sheet.appendChild(authorDiv);
+
+            // 타이틀 영역
+            const titleWrap = document.createElement('div');
+            titleWrap.className = 'title-box';
+
+            const mTitle = document.createElement('div');
+            mTitle.className = 'title-main';
+            mTitle.contentEditable = true;
+            mTitle.innerText = item.title;
+            mTitle.oninput = (e) => { data[curIdx].title = e.target.innerText; persist(); };
+
+            const sTitle = document.createElement('div');
+            sTitle.className = 'title-sub';
+            sTitle.contentEditable = true;
+            sTitle.innerText = item.sub;
+            sTitle.oninput = (e) => { data[curIdx].sub = e.target.innerText; persist(); };
+
+            titleWrap.appendChild(mTitle);
+            titleWrap.appendChild(sTitle);
+            sheet.appendChild(titleWrap);
+
+            // 본문 영역
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'text-body';
+            contentDiv.contentEditable = true;
+            contentDiv.innerText = item.content;
+            contentDiv.oninput = (e) => { data[curIdx].content = e.target.innerText; persist(); };
+            sheet.appendChild(contentDiv);
+
+            box.appendChild(sheet);
+
+            // 상태바 갱신
+            document.getElementById('pageInfo').innerText = `${curIdx + 1} / ${data.length}`;
+        }
+
+        function movePage(dir) {
+            if (curIdx + dir >= 0 && curIdx + dir < data.length) {
+                curIdx += dir;
+                render();
+            }
+        }
+
+        function addPage() {
+            data.push({ img: "", author: "작가 이름", title: "새 제목", sub: "새 부제목", content: "내용..." });
+            curIdx = data.length - 1;
+            render();
+            persist();
+        }
+
+        function delPage() {
+            if (data.length <= 1) {
+                alert('최소 1개의 페이지는 있어야 합니다.');
+                return;
+            }
+            if (confirm('이 페이지를 삭제하시겠습니까?')) {
+                data.splice(curIdx, 1);
+                if (curIdx >= data.length) curIdx = data.length - 1;
+                render();
+                persist();
+            }
+        }
+
+        function imageSelected(e) {
+            const file = e.target.files[0];
+            if (file && targetImgIdx !== null) {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    data[targetImgIdx].img = evt.target.result;
+                    render();
+                    persist();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveFile() {
+            const blob = new Blob([JSON.stringify(data)], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "pairmaker_backup.json";
+            a.click();
+        }
+
+        function loadJSON(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    try {
+                        const parsed = JSON.parse(evt.target.result);
+                        if (Array.isArray(parsed)) {
+                            data = parsed;
+                            curIdx = 0;
+                            render();
+                            persist();
+                            alert('정상적으로 불러왔습니다!');
+                        }
+                    } catch(err) {
+                        alert('파일이 손상되었거나 형식이 잘못되었습니다.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // 초기 구동
+        window.onload = render;
+    </script>
+</body>
+</html>
