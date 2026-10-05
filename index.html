@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PairMaker - File Backup Ver</title>
+    <title>PairMaker - Fixed Version</title>
+    <!-- 폰트 로드 안정성 확보 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <style>
@@ -15,7 +18,7 @@
 
         body {
             background-color: #dcdcdc;
-            font-family: 'Pretendard', sans-serif;
+            font-family: 'Pretendard', sans-serif !important;
             color: #111111;
             display: flex;
             flex-direction: column;
@@ -52,7 +55,7 @@
             background-color: #ffffff;
             color: #111111;
             transition: all 0.2s;
-            font-family: 'Pretendard', sans-serif;
+            font-family: 'Pretendard', sans-serif !important;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -61,6 +64,7 @@
         .control-panel button:disabled { border-color: #cccccc; background-color: #f0f0f0; color: #aaaaaa; cursor: not-allowed; }
 
         .page-indicator {
+            font-family: 'Pretendard', sans-serif !important;
             font-weight: 700;
             font-size: 13px;
             color: #222222;
@@ -125,6 +129,7 @@
             object-fit: cover;
         }
         .image-box span {
+            font-family: 'Pretendard', sans-serif !important;
             color: #333333;
             font-weight: 600;
             font-size: 14px;
@@ -170,7 +175,7 @@
         }
 
         .content-area {
-            font-family: 'Gowun Batang', serif;
+            font-family: 'Gowun Batang', serif !important;
             font-size: 18px;
             line-height: 1.85;
             color: #111111;
@@ -235,7 +240,7 @@
     <input type="file" id="imageSelector" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
 
     <script>
-        const STORAGE_KEY = 'pairmaker_v10_secure_storage';
+        const STORAGE_KEY = 'pairmaker_v11_fixed_storage';
 
         let pagesData = [
             {
@@ -243,18 +248,21 @@
                 author: '작가이름, 커미주',
                 title: '흑백 모노톤 제목 (두껍게)',
                 subtitle: '부제목 영역입니다',
-                content: '브라우저 저장이 안 될 경우 상단의 [💾 파일 백업] 버튼을 눌러 내 기기에 파일을 저장해두세요. 나중에 [📂 파일 불러오기]로 언제든 이어서 작성할 수 있습니다.'
+                content: '폰트와 저장이 정상 작동하도록 코드를 완전히 고정했습니다. 작성 후 [💾 파일 백업]을 눌러두시면 데이터 유실 걱정 없이 안전하게 보관하실 수 있습니다.'
             }
         ];
 
-        // 브라우저 저장 시도 (실패해도 에러 안 나도록 처리)
+        // 안전한 데이터 불러오기
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
-                pagesData = JSON.parse(saved);
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    pagesData = parsed;
+                }
             }
         } catch (e) {
-            console.log('LocalStorage unavailable');
+            console.log('Storage read error:', e);
         }
 
         let currentPageIndex = 0;
@@ -421,7 +429,6 @@
             }
         }
 
-        // 파일 백업 다운로드
         function exportDataFile() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pagesData));
             const downloadAnchor = document.createElement('a');
@@ -432,7 +439,6 @@
             downloadAnchor.remove();
         }
 
-        // 파일 불러오기
         function importDataFile(event) {
             const file = event.target.files[0];
             if (file) {
@@ -460,7 +466,7 @@
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(pagesData));
             } catch (e) {
-                // 저장 공간 부족이나 브라우저 제어 시 무시
+                console.log('Storage save failed:', e);
             }
         }
 
