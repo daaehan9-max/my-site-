@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PairMaker - Fresh Clean Ver</title>
+    <title>PairMaker - File Backup Ver</title>
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <style>
@@ -33,33 +33,38 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             display: flex;
             align-items: center;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-bottom: 20px;
             position: sticky;
             top: 10px;
             z-index: 1000;
+            justify-content: center;
         }
 
-        .control-panel button {
-            padding: 8px 12px;
+        .control-panel button, .control-panel label {
+            padding: 7px 10px;
             border: 1px solid #222222;
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             background-color: #ffffff;
             color: #111111;
             transition: all 0.2s;
             font-family: 'Pretendard', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-        .control-panel button:hover { background-color: #111111; color: #ffffff; }
+        .control-panel button:hover, .control-panel label:hover { background-color: #111111; color: #ffffff; }
         .control-panel button:disabled { border-color: #cccccc; background-color: #f0f0f0; color: #aaaaaa; cursor: not-allowed; }
 
         .page-indicator {
             font-weight: 700;
-            font-size: 14px;
+            font-size: 13px;
             color: #222222;
-            min-width: 45px;
+            min-width: 40px;
             text-align: center;
         }
 
@@ -219,6 +224,9 @@
         <button id="nextBtn" onclick="changePage(1)">다음 ›</button>
         <button onclick="addPage()">＋ 추가</button>
         <button class="btn-delete-page" onclick="deleteCurrentPage()">삭제</button>
+        <button onclick="exportDataFile()">💾 파일 백업</button>
+        <label for="importFileBtn">📂 파일 불러오기</label>
+        <input type="file" id="importFileBtn" accept=".json" style="display:none;" onchange="importDataFile(event)">
         <button class="btn-print-save" onclick="window.print()">PDF로 저장</button>
     </div>
 
@@ -227,18 +235,27 @@
     <input type="file" id="imageSelector" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
 
     <script>
-        // 완전히 새로운 스토리지 키 사용 (캐시 문제 원천 차단)
-        const STORAGE_KEY = 'pairmaker_v9_clean_storage';
+        const STORAGE_KEY = 'pairmaker_v10_secure_storage';
 
-        let pagesData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [
+        let pagesData = [
             {
                 image: '',
                 author: '작가이름, 커미주',
                 title: '흑백 모노톤 제목 (두껍게)',
                 subtitle: '부제목 영역입니다',
-                content: '이모티콘과 폰트, 저장 문제가 모두 해결된 최신 버전입니다. 상단의 [PDF로 저장] 버튼을 눌러 확인해 보세요.'
+                content: '브라우저 저장이 안 될 경우 상단의 [💾 파일 백업] 버튼을 눌러 내 기기에 파일을 저장해두세요. 나중에 [📂 파일 불러오기]로 언제든 이어서 작성할 수 있습니다.'
             }
         ];
+
+        // 브라우저 저장 시도 (실패해도 에러 안 나도록 처리)
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                pagesData = JSON.parse(saved);
+            }
+        } catch (e) {
+            console.log('LocalStorage unavailable');
+        }
 
         let currentPageIndex = 0;
         let activeImagePageIndex = null;
@@ -404,8 +421,47 @@
             }
         }
 
+        // 파일 백업 다운로드
+        function exportDataFile() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pagesData));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "pairmaker_backup.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // 파일 불러오기
+        function importDataFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (Array.isArray(imported)) {
+                            pagesData = imported;
+                            currentPageIndex = 0;
+                            renderDocument();
+                            alert('백업 파일을 성공적으로 불러왔습니다!');
+                        } else {
+                            alert('잘못된 백업 파일 형식입니다.');
+                        }
+                    } catch (err) {
+                        alert('파일을 읽는 중 오류가 발생했습니다.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
         function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(pagesData));
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(pagesData));
+            } catch (e) {
+                // 저장 공간 부족이나 브라우저 제어 시 무시
+            }
         }
 
         window.onload = () => {
