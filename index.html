@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PairMaker - Perfect Fix</title>
+    <title>PairMaker - Direct Force Save</title>
     
     <style>
         * {
@@ -14,7 +14,6 @@
 
         body {
             background-color: #dcdcdc;
-            /* 시스템 표준 고품질 폰트 적용 (외부 링크 불필요) */
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
             color: #111111;
             display: flex;
@@ -129,7 +128,7 @@
         }
 
         .author-info {
-            font-family: 'Pretendard', sans-serif;
+            font-family: 'Pretendard', sans-serif !important;
             text-align: right;
             font-size: 15px;
             color: #222222;
@@ -143,26 +142,25 @@
             margin-bottom: 6px;
         }
         .main-title {
-            font-family: 'Pretendard', sans-serif;
-            font-size: 26px;
-            font-weight: 900;
+            font-family: 'Pretendard', sans-serif !important;
+            font-size: 26px !important;
+            font-weight: 900 !important;
             color: #000000;
             outline: none;
             margin-bottom: 4px;
         }
         .sub-title {
-            font-family: 'Pretendard', sans-serif;
-            font-size: 17px;
-            font-weight: 700;
+            font-family: 'Pretendard', sans-serif !important;
+            font-size: 17px !important;
+            font-weight: 700 !important;
             color: #333333;
             outline: none;
         }
         .main-title:focus, .sub-title:focus { background: #eaeaea; border-radius: 4px; }
 
         .content-area {
-            /* 명조체 계열 (바탕체) 적용 */
-            font-family: 'Batang', 'AppleMyungjo', 'Gowun Batang', serif;
-            font-size: 18px;
+            font-family: 'Batang', 'AppleMyungjo', 'Gowun Batang', serif !important;
+            font-size: 18px !important;
             line-height: 1.85;
             color: #111111;
             text-align: justify;
@@ -205,7 +203,7 @@
         <button class="btn-delete-page" onclick="deleteCurrentPage()">삭제</button>
         <button onclick="exportDataFile()">💾 파일 백업</button>
         <label for="importFileBtn">📂 불러오기</label>
-        <input type="file" id="importFileBtn" accept=".json" style="display:none;" onchange="importDataFile(event)">
+        <input type="file" id="importFileBtn" accept=".json" style="display:none;" onchange="importFile(event)">
         <button class="btn-print-save" onclick="window.print()">PDF로 저장</button>
     </div>
 
@@ -214,27 +212,15 @@
     <input type="file" id="imageSelector" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
 
     <script>
-        const STORAGE_KEY = 'pairmaker_final_v13';
-
         let pagesData = [
             {
                 image: '',
                 author: '작가이름, 커미주',
                 title: '흑백 모노톤 제목',
                 subtitle: '부제목 영역입니다',
-                content: '폰트와 저장이 완벽하게 고정되었습니다. 작성 후 [💾 파일 백업]을 누르면 안전하게 파일로 저장되며 [📂 불러오기]로 언제든 불러올 수 있습니다.'
+                content: '이 버전은 브라우저 저장소 제한을 우회하기 위해 [💾 파일 백업] 버튼 하나로 모든 데이터가 완벽하게 파일 저장/로드되도록 제작되었습니다.'
             }
         ];
-
-        try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    pagesData = parsed;
-                }
-            }
-        } catch (e) {}
 
         let currentPageIndex = 0;
         let activeImagePageIndex = null;
@@ -303,7 +289,6 @@
             authorDiv.innerText = data.author;
             authorDiv.oninput = (e) => {
                 pagesData[index].author = e.target.innerText;
-                autoSave();
             };
             headerDiv.appendChild(authorDiv);
 
@@ -316,7 +301,6 @@
             titleInput.innerText = data.title;
             titleInput.oninput = (e) => {
                 pagesData[index].title = e.target.innerText;
-                autoSave();
             };
 
             let subTitleInput = document.createElement('div');
@@ -325,7 +309,6 @@
             subTitleInput.innerText = data.subtitle;
             subTitleInput.oninput = (e) => {
                 pagesData[index].subtitle = e.target.innerText;
-                autoSave();
             };
 
             titleArea.appendChild(titleInput);
@@ -339,7 +322,6 @@
             contentDiv.innerText = data.content;
             contentDiv.oninput = (e) => {
                 pagesData[index].content = e.target.innerText;
-                autoSave();
             };
             pageDiv.appendChild(contentDiv);
 
@@ -362,7 +344,6 @@
                 reader.onload = (e) => {
                     pagesData[activeImagePageIndex].image = e.target.result;
                     renderDocument();
-                    autoSave();
                 };
                 reader.readAsDataURL(file);
             }
@@ -379,7 +360,6 @@
             currentPageIndex = pagesData.length - 1;
             renderDocument();
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            autoSave();
         }
 
         function deleteCurrentPage() {
@@ -394,7 +374,6 @@
                 }
                 renderDocument();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                autoSave();
             }
         }
 
@@ -402,13 +381,13 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pagesData));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "pairmaker_backup.json");
+            downloadAnchor.setAttribute("download", "pairmaker_save_file.json");
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
         }
 
-        function importDataFile(event) {
+        function importFile(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
@@ -419,21 +398,14 @@
                             pagesData = imported;
                             currentPageIndex = 0;
                             renderDocument();
-                            autoSave();
-                            alert('파일을 정상적으로 불러왔습니다!');
+                            alert('파일을 성공적으로 불러왔습니다!');
                         }
                     } catch (err) {
-                        alert('파일 형식이 올바르지 않습니다.');
+                        alert('올바른 백업 파일이 아닙니다.');
                     }
                 };
                 reader.readAsText(file);
             }
-        }
-
-        function autoSave() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(pagesData));
-            } catch (e) {}
         }
 
         window.onload = () => {
