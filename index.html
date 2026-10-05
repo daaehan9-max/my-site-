@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A4 웹 문서 에디터</title>
-    <!-- 예쁜 폰트 로드 (Pretendard & Noto Serif KR) -->
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Pretendard:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* A4 비율 기준 (너비 794px, 높이 1123px at 96 DPI) */
             --a4-width: 794px;
             --a4-height: 1123px;
         }
@@ -22,7 +21,7 @@
         }
 
         body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif !important;
             background-color: #eef2f5;
             color: #333;
             display: flex;
@@ -32,7 +31,6 @@
             padding: 20px;
         }
 
-        /* 상단 컨트롤 패널 (인쇄 시 숨김) */
         .control-panel {
             background: #ffffff;
             padding: 15px 25px;
@@ -68,7 +66,6 @@
         .btn-print { background-color: #475569; color: white; }
         .btn-print:hover { background-color: #334155; }
 
-        /* 문서 컨테이너 (페이지들이 들어가는 곳) */
         .document-container {
             display: flex;
             flex-direction: column;
@@ -78,7 +75,6 @@
             padding-bottom: 50px;
         }
 
-        /* A4 페이지 스타일 */
         .a4-page {
             width: var(--a4-width);
             height: var(--a4-height);
@@ -92,23 +88,22 @@
             border-radius: 4px;
         }
 
-        /* 페이지 내부 컨텐츠 영역 */
         .page-content {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
             flex-grow: 1;
+            height: calc(var(--a4-height) - 170px);
             overflow: hidden;
         }
 
-        /* 페이지 하단 페이지네이션 바 (‹ 1 / 2 ›) */
         .page-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-top: 1px solid #e2e8f0;
-            padding-top: 15px;
-            margin-top: auto;
+            padding-top: 12px;
+            height: 40px;
             font-size: 14px;
             color: #64748b;
         }
@@ -132,34 +127,34 @@
             cursor: not-allowed;
         }
 
-        /* 아이템 공통 스타일 (글/그림) */
         .item-box {
             position: relative;
-            border-radius: 8px;
-            transition: border 0.2s;
+            width: 100%;
         }
         .item-box:hover .delete-btn {
             opacity: 1;
         }
 
-        /* 글 아이템 스타일 */
+        /* 글 정렬 및 명조체 깔끔하게 다듬기 */
         .text-item {
-            font-family: 'Noto Serif KR', serif; /* 예쁜 소설/문서용 명조체 적용 */
+            font-family: 'Noto Serif KR', serif !important;
             font-size: 16px;
-            line-height: 1.8;
+            line-height: 1.9;
             color: #1e293b;
             outline: none;
-            padding: 8px;
+            padding: 8px 4px;
             border: 1px dashed transparent;
+            text-align: justify; /* 양쪽 정렬로 줄바꿈 라인 맞춤 */
             word-break: break-all;
             white-space: pre-wrap;
         }
         .text-item:focus {
             border-color: #cbd5e1;
             background: #fafafa;
+            border-radius: 4px;
         }
 
-        /* 그림 아이템 스타일 */
+        /* 그림 정렬 및 박스 레이아웃 */
         .image-item {
             display: flex;
             flex-direction: column;
@@ -168,29 +163,29 @@
             background: #f8fafc;
             border: 2px dashed #cbd5e1;
             border-radius: 8px;
-            padding: 10px;
-            max-height: 350px;
+            padding: 12px;
+            max-height: 320px;
             overflow: hidden;
+            width: 100%;
         }
         .image-item img {
             max-width: 100%;
-            max-height: 300px;
+            max-height: 290px;
             object-fit: contain;
             border-radius: 4px;
         }
 
-        /* 삭제 버튼 */
         .delete-btn {
             position: absolute;
-            top: 5px;
-            right: 5px;
+            top: -4px;
+            right: -4px;
             background: rgba(239, 68, 68, 0.9);
             color: white;
             border: none;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 12px;
+            width: 22px;
+            height: 22px;
+            font-size: 11px;
             cursor: pointer;
             opacity: 0;
             transition: opacity 0.2s;
@@ -203,69 +198,41 @@
             background: rgb(220, 38, 38);
         }
 
-        /* 인쇄 최적화 */
         @media print {
-            body {
-                background: none;
-                padding: 0;
-            }
-            .control-panel {
-                display: none;
-            }
-            .document-container {
-                gap: 0;
-            }
-            .a4-page {
-                box-shadow: none;
-                margin: 0;
-                page-break-after: always;
-                break-after: page;
-            }
-            .delete-btn {
-                display: none !important;
-            }
-            .text-item {
-                border: none !important;
-                background: transparent !important;
-            }
+            body { background: none; padding: 0; }
+            .control-panel { display: none; }
+            .document-container { gap: 0; }
+            .a4-page { box-shadow: none; margin: 0; page-break-after: always; }
+            .delete-btn { display: none !important; }
+            .text-item { border: none !important; background: transparent !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 상단 컨트롤 버튼 패널 -->
     <div class="control-panel">
         <button class="btn-add-text" onclick="addItem('text')">＋ 글 추가</button>
         <button class="btn-add-img" onclick="addItem('image')">＋ 그림 추가</button>
-        <button class="btn-print" onclick="window.print()">🖨️️ 인쇄 / PDF 저장</button>
+        <button class="btn-print" onclick="window.print()">🖨 인쇄 / PDF 저장</button>
     </div>
 
-    <!-- 문서 전체 영역 -->
-    <div id="documentContainer" class="document-container">
-        <!-- 페이지들이 자바스크립트에 의해 동적으로 생성됩니다 -->
-    </div>
+    <div id="documentContainer" class="document-container"></div>
 
     <script>
-        // 문서 전체 데이터를 담는 배열 (글 또는 그림 객체 저장)
-        // 새로고침해도 유지되도록 localStorage 연동
         let items = JSON.parse(localStorage.getItem('a4_doc_items')) || [
-            { type: 'text', content: '여기에 첫 번째 글을 작성해보세요. 글이 길어지거나 그림이 추가되면 자동으로 다음 페이지로 넘어갑니다.' }
+            { type: 'text', content: '여기에 정렬이 깔끔하게 맞는 글을 작성해보세요. 좌우 간격과 여백이 반듯하게 정돈되어 출력됩니다.' }
         ];
 
-        // 페이지별 렌더링을 계산하는 핵심 함수
         function renderDocument() {
             const container = document.getElementById('documentContainer');
             container.innerHTML = '';
 
             if (items.length === 0) {
-                // 비어있을 경우 빈 페이지 1장 표시
                 container.appendChild(createPageElement(1, 1, []));
                 saveData();
                 return;
             }
 
-            // 가상으로 DOM에 페이지들을 그려가며 높이를 체크하여 페이지 분할 수행
-            // 정확한 A4 높이 측정을 위해 임시 측정용 컨테이너 활용
             let pagesItems = distributeItemsIntoPages();
             let totalPages = pagesItems.length;
 
@@ -278,9 +245,7 @@
             saveData();
         }
 
-        // 아이템들을 높이에 맞춰 페이지별로 나누는 알고리즘
         function distributeItemsIntoPages() {
-            // 임시 측정 컨테이너 생성 ( 화면 밖에 보이지 않게 배치 )
             let measurePage = document.createElement('div');
             measurePage.className = 'a4-page';
             measurePage.style.position = 'absolute';
@@ -292,8 +257,7 @@
             contentArea.className = 'page-content';
             measurePage.appendChild(contentArea);
 
-            // A4 페이지 내부 콘텐츠의 최대 가용 높이 (패딩 제외한 높이: 1123px - 120px 패딩 - 50px 하단바)
-            const MAX_CONTENT_HEIGHT = 930; 
+            const MAX_CONTENT_HEIGHT = 850; 
 
             let pages = [];
             let currentPageItems = [];
@@ -303,16 +267,14 @@
                 let itemEl = createItemElement(item, index);
                 contentArea.appendChild(itemEl);
                 
-                // 렌더링된 실제 높이 측정
-                let itemHeight = itemEl.offsetHeight + 16; // gap 고려
+                let itemHeight = itemEl.offsetHeight + 18;
 
-                // 만약 현재 아이템을 넣었을 때 최대 높이를 초과하고, 페이지에 이미 무언가가 있다면 다음 페이지로 분기
                 if (currentHeight + itemHeight > MAX_CONTENT_HEIGHT && currentPageItems.length > 0) {
                     pages.push(currentPageItems);
                     currentPageItems = [item];
-                    contentArea.innerHTML = ''; // 측정 영역 초기화 후 현재 아이템 다시 측정
+                    contentArea.innerHTML = '';
                     contentArea.appendChild(itemEl);
-                    currentHeight = itemEl.offsetHeight + 16;
+                    currentHeight = itemEl.offsetHeight + 18;
                 } else {
                     currentPageItems.push(item);
                     currentHeight += itemHeight;
@@ -327,24 +289,20 @@
             return pages;
         }
 
-        // 개별 페이지 DOM 엘리먼트 생성
         function createPageElement(pageNum, totalPages, pageItems) {
             let pageDiv = document.createElement('div');
             pageDiv.className = 'a4-page';
 
             let contentDiv = document.createElement('div');
             contentDiv.className = 'page-content';
-
             pageDiv.appendChild(contentDiv);
 
-            // 해당 페이지에 속한 아이템들 채우기
             pageItems.forEach(item => {
                 let originalIndex = items.indexOf(item);
                 let itemEl = createItemElement(item, originalIndex);
                 contentDiv.appendChild(itemEl);
             });
 
-            // 하단 페이지네이션 바 생성 (‹ 1 / 2 ›)
             let footerDiv = document.createElement('div');
             footerDiv.className = 'page-footer';
             
@@ -368,16 +326,13 @@
             footerDiv.appendChild(nextBtn);
 
             pageDiv.appendChild(footerDiv);
-
             return pageDiv;
         }
 
-        // 글 또는 그림 아이템 DOM 생성
         function createItemElement(item, index) {
             let wrapper = document.createElement('div');
             wrapper.className = 'item-box';
 
-            // 삭제 버튼
             let delBtn = document.createElement('button');
             delBtn.className = 'delete-btn';
             delBtn.innerHTML = '✕';
@@ -394,10 +349,9 @@
                 textDiv.contentEditable = true;
                 textDiv.innerText = item.content;
                 
-                // 실시간 내용 수정 반영
                 textDiv.oninput = (e) => {
                     items[index].content = e.target.innerText;
-                    saveData();
+                    renderDocument();
                 };
                 wrapper.appendChild(textDiv);
             } else if (item.type === 'image') {
@@ -409,7 +363,6 @@
                     img.src = item.content;
                     imgDiv.appendChild(img);
                 } else {
-                    // 이미지가 아직 없을 경우 파일 업로드 인풋 제공
                     let fileInput = document.createElement('input');
                     fileInput.type = 'file';
                     fileInput.accept = 'image/*';
@@ -432,7 +385,6 @@
             return wrapper;
         }
 
-        // 아이템 추가 함수
         function addItem(type) {
             items.push({
                 type: type,
@@ -441,13 +393,11 @@
             renderDocument();
         }
 
-        // 아이템 삭제 함수
         function deleteItem(index) {
             items.splice(index, 1);
             renderDocument();
         }
 
-        // 특정 페이지로 부드럽게 스크롤 이동
         function scrollToPage(pageNum) {
             const pages = document.querySelectorAll('.a4-page');
             if (pages[pageNum - 1]) {
@@ -455,12 +405,10 @@
             }
         }
 
-        // 로컬 스토리지 저장
         function saveData() {
             localStorage.setItem('a4_doc_items', JSON.stringify(items));
         }
 
-        // 초기렌더링 실행
         window.onload = () => {
             renderDocument();
         };
