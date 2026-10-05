@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PairMaker - 흑백 모노톤 완성본</title>
+    <title>PairMaker - 완벽한 흑백 모노톤 템플릿</title>
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <!-- PDF 변환을 위한 jsPDF 및 html2canvas 라이브러리 로드 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         * {
@@ -16,9 +13,9 @@
             padding: 0;
         }
 
-        /* 흑백 모노톤 배경 및 스타일 */
+        /* 흑백 모노톤 배경 */
         body {
-            background-color: #f1f1f1;
+            background-color: #e5e5e5;
             font-family: 'Pretendard', sans-serif;
             color: #111111;
             display: flex;
@@ -29,13 +26,13 @@
             overflow-x: hidden;
         }
 
-        /* 상단 제어 패널 (흑백톤) */
+        /* 상단 제어 패널 (흑백) */
         .control-panel {
             background: #ffffff;
-            border: 1px solid #cccccc;
+            border: 1px solid #b0b0b0;
             padding: 10px 16px;
             border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -57,12 +54,12 @@
             transition: all 0.2s;
         }
         .control-panel button:hover { background-color: #111111; color: #ffffff; }
-        .control-panel button:disabled { border-color: #dddddd; background-color: #f9f9f9; color: #aaaaaa; cursor: not-allowed; }
+        .control-panel button:disabled { border-color: #cccccc; background-color: #f0f0f0; color: #aaaaaa; cursor: not-allowed; }
 
         .page-indicator {
             font-weight: 700;
             font-size: 14px;
-            color: #333333;
+            color: #222222;
             min-width: 50px;
             text-align: center;
         }
@@ -77,13 +74,13 @@
             width: 100%;
         }
 
-        /* A4 규격 (794px × 1123px) */
+        /* A4 규격 (794px × 1123px) - 흑백 테두리 및 배경 */
         .a4-page {
             width: 794px;
             height: 1123px;
             background: #ffffff;
-            border: 1px solid #d4d4d4;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 1px solid #cccccc;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             padding: 55px 65px;
             display: none;
             flex-direction: column;
@@ -104,12 +101,12 @@
             flex-shrink: 0;
         }
 
-        /* 그림 칸 */
+        /* 그림 칸 (흑백 점선 테두리) */
         .image-box {
             width: 100%;
             height: 135px; 
             background: #fafafa;
-            border: 2px dashed #999999;
+            border: 2px dashed #777777;
             border-radius: 6px;
             display: flex;
             align-items: center;
@@ -125,7 +122,7 @@
             object-fit: cover;
         }
         .image-box span {
-            color: #555555;
+            color: #444444;
             font-weight: 600;
             font-size: 14px;
             text-align: center;
@@ -146,14 +143,14 @@
             border-radius: 4px;
         }
 
-        /* 제목 및 부제목 (흑백톤 두꺼운 글씨) */
+        /* 제목 및 부제목 (요청하신 폰트 및 매우 두꺼운 글씨 적용) */
         .title-area {
             margin-bottom: 6px;
         }
         .main-title {
             font-family: 'Pretendard', sans-serif;
             font-size: 26px;
-            font-weight: 900;
+            font-weight: 900; /* 매우 두꺼운 글씨 */
             color: #000000;
             outline: none;
             margin-bottom: 4px;
@@ -161,8 +158,8 @@
         .sub-title {
             font-family: 'Pretendard', sans-serif;
             font-size: 17px;
-            font-weight: 700;
-            color: #444444;
+            font-weight: 700; /* 두껍게 설정 */
+            color: #333333;
             outline: none;
         }
         .main-title:focus, .sub-title:focus {
@@ -170,12 +167,12 @@
             border-radius: 4px;
         }
 
-        /* 본문 내용 영역 */
+        /* 본문 내용 영역 (고운바탕 폰트) */
         .content-area {
             font-family: 'Gowun Batang', serif;
             font-size: 18px;
             line-height: 1.85;
-            color: #222222;
+            color: #111111;
             text-align: justify;
             word-break: break-all;
             white-space: pre-wrap;
@@ -197,7 +194,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.75);
             z-index: 2000;
             justify-content: center;
             align-items: center;
@@ -206,12 +203,12 @@
         .modal-content {
             background: #ffffff;
             width: 100%;
-            max-width: 650px;
-            border-radius: 12px;
+            max-width: 700px;
+            border-radius: 10px;
             padding: 25px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             max-height: 90vh;
         }
         .modal-header {
@@ -222,16 +219,16 @@
         }
         .modal-header h2 {
             font-size: 18px;
-            font-weight: 800;
+            font-weight: 900;
             color: #111;
         }
         .modal-close {
             background: none;
             border: none;
-            font-size: 20px;
+            font-size: 22px;
             cursor: pointer;
             font-weight: bold;
-            color: #555;
+            color: #333;
         }
         .modal-body {
             flex-grow: 1;
@@ -241,18 +238,19 @@
             padding: 15px;
             background: #f9f9f9;
             margin-bottom: 20px;
-            text-align: center;
+            text-align: left;
         }
-        .modal-preview-img {
-            max-width: 100%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border: 1px solid #ccc;
+        .modal-preview-text {
+            font-size: 14px;
+            color: #333;
             margin-bottom: 10px;
+            font-weight: 600;
         }
         .modal-footer {
             display: flex;
             gap: 10px;
             justify-content: flex-end;
+            flex-wrap: wrap;
         }
         .modal-footer button {
             padding: 10px 16px;
@@ -261,9 +259,27 @@
             cursor: pointer;
             font-size: 14px;
         }
-        .btn-cancel { background: #e5e5e5; border: 1px solid #ccc; color: #333; }
-        .btn-single-pdf { background: #333; color: #fff; border: none; }
-        .btn-all-pdf { background: #000; color: #fff; border: none; }
+        .btn-cancel { background: #e0e0e0; border: 1px solid #bbb; color: #333; }
+        .btn-print-action { background: #111; color: #fff; border: none; }
+
+        /* 인쇄 시 오직 A4 페이지만 깔끔하게 출력되도록 설정 */
+        @media print {
+            body { background: none; padding: 0; }
+            .control-panel { display: none !important; }
+            #previewModal { display: none !important; }
+            .document-container { display: block !important; }
+            .a4-page { 
+                display: flex !important;
+                border: none !important;
+                box-shadow: none !important; 
+                margin: 0 !important; 
+                zoom: 1 !important;
+                page-break-after: always; 
+                width: 794px !important;
+                height: 1123px !important;
+                position: relative !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -284,17 +300,15 @@
     <div id="previewModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>📄 PDF 저장 미리보기</h2>
+                <h2>📄 완성된 문서 미리보기</h2>
                 <button class="modal-close" onclick="closeSaveModal()">×</button>
             </div>
             <div class="modal-body" id="modalBody">
-                <!-- 캔버스 미리보기 이미지가 여기에 동적으로 들어갑니다 -->
-                <p style="color: #666; font-size: 14px;">현재 페이지의 미리보기를 생성 중입니다...</p>
+                <!-- 완성된 내용 요약 및 안내 -->
             </div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeSaveModal()">취소</button>
-                <button class="btn-single-pdf" onclick="downloadCurrentPagePDF()">현재 페이지만 저장</button>
-                <button class="btn-all-pdf" onclick="downloadAllPagesPDF()">전체 페이지 한 번에 저장</button>
+                <button class="btn-print-action" onclick="executePrint()">🖨 인쇄 / PDF로 저장하기</button>
             </div>
         </div>
     </div>
@@ -302,13 +316,13 @@
     <input type="file" id="imageSelector" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
 
     <script>
-        let pagesData = JSON.parse(localStorage.getItem('pairmaker_pages_mono')) || [
+        let pagesData = JSON.parse(localStorage.getItem('pairmaker_mono_v3')) || [
             {
                 image: '',
                 author: '작가이름, 커미주',
-                title: '흑백 모노톤 제목 영역',
-                subtitle: '부제목을 입력하세요',
-                content: '컬러를 모두 제거한 깔끔한 흑백 모노톤 템플릿입니다. 상단의 [PDF 저장하기] 버튼을 누르면 완성된 모습을 미리 확인하고, 각각 또는 한 번에 PDF로 안전하게 저장할 수 있습니다.'
+                title: '흑백 모노톤 제목 (두껍게)',
+                subtitle: '부제목 영역입니다',
+                content: '흑백 모노톤 테마와 두꺼운 제목 폰트가 적용되었습니다. [PDF 저장하기] 버튼을 누르면 완성된 모습을 미리 확인하고 인쇄 창을 통해 PDF로 안전하게 저장할 수 있습니다.'
             }
         ];
 
@@ -428,86 +442,30 @@
         }
 
         // 저장 미리보기 모달 열기
-        async function openSaveModal() {
+        function openSaveModal() {
             const modal = document.getElementById('previewModal');
             const modalBody = document.getElementById('modalBody');
             modal.style.display = 'flex';
-            modalBody.innerHTML = `<p style="color: #666; font-size: 14px; padding: 20px;">현재 페이지 미리보기를 생성 중입니다...</p>`;
 
-            const targetPage = document.getElementById(`a4-page-${currentPageIndex}`);
-            
-            // 임시로 zoom 및 디자인 요소 최적화 후 캔버스 캡처
-            const originalZoom = targetPage.style.zoom;
-            targetPage.style.zoom = '1';
+            let summaryHtml = `<div class="modal-preview-text">총 <strong>${pagesData.length}페이지</strong>의 문서가 완벽하게 준비되었습니다!</div>`;
+            summaryHtml += `<ul style="font-size: 13px; color: #555; padding-left: 20px; line-height: 1.6;">`;
+            pagesData.forEach((p, idx) => {
+                summaryHtml += `<li><strong>[${idx + 1}페이지]</strong> 제목: ${p.title || '제목 없음'}</li>`;
+            });
+            summaryHtml += `</ul>`;
+            summaryHtml += `<p style="font-size: 12px; color: #666; margin-top: 15px;">아래 버튼을 누르면 인쇄 미리보기 창이 열리며, 대상(Destination)을 <strong>[PDF로 저장 (Save as PDF)]</strong>으로 설정하여 파일로 저장하실 수 있습니다.</p>`;
 
-            try {
-                const canvas = await html2canvas(targetPage, { scale: 2, useCORS: true });
-                targetPage.style.zoom = originalZoom;
-
-                const imgData = canvas.toDataURL('image/png');
-                modalBody.innerHTML = `
-                    <p style="font-size: 13px; color: #555; margin-bottom: 8px;">[현재 페이지 (${currentPageIndex + 1}페이지) 미리보기]</p>
-                    <img src="${imgData}" class="modal-preview-img" alt="미리보기">
-                    <p style="font-size: 12px; color: #777;">이대로 PDF 파일이 저장됩니다.</p>
-                `;
-            } catch (error) {
-                targetPage.style.zoom = originalZoom;
-                modalBody.innerHTML = `<p style="color: red; font-size: 14px;">미리보기 생성 중 오류가 발생했습니다.</p>`;
-            }
+            modalBody.innerHTML = summaryHtml;
         }
 
         function closeSaveModal() {
             document.getElementById('previewModal').style.display = 'none';
         }
 
-        // 현재 페이지만 PDF로 저장
-        async function downloadCurrentPagePDF() {
-            const targetPage = document.getElementById(`a4-page-${currentPageIndex}`);
-            const originalZoom = targetPage.style.zoom;
-            targetPage.style.zoom = '1';
-
-            const canvas = await html2canvas(targetPage, { scale: 2, useCORS: true });
-            targetPage.style.zoom = originalZoom;
-
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-
-            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`PairMaker_Page_${currentPageIndex + 1}.pdf`);
+        // 인쇄 및 PDF 저장 실행
+        function executePrint() {
             closeSaveModal();
-        }
-
-        // 전체 페이지 한 번에 PDF로 저장
-        async function downloadAllPagesPDF() {
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-
-            const pages = document.querySelectorAll('.a4-page');
-
-            for (let i = 0; i < pages.length; i++) {
-                const page = pages[i];
-                const originalZoom = page.style.zoom;
-                page.style.zoom = '1';
-
-                const canvas = await html2canvas(page, { scale: 2, useCORS: true });
-                page.style.zoom = originalZoom;
-
-                const imgData = canvas.toDataURL('image/jpeg', 1.0);
-
-                if (i > 0) {
-                    pdf.addPage();
-                }
-                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-            }
-
-            pdf.save('PairMaker_All_Pages.pdf');
-            closeSaveModal();
+            window.print();
         }
 
         function changePage(direction) {
@@ -545,7 +503,7 @@
         }
 
         function saveData() {
-            localStorage.setItem('pairmaker_pages_mono', JSON.stringify(pagesData));
+            localStorage.setItem('pairmaker_mono_v3', JSON.stringify(pagesData));
         }
 
         window.onload = () => {
