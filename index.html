@@ -1,153 +1,469 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>작품 페이지 편집기</title>
-<style>
-*{box-sizing:border-box}body{margin:0;background:#e9e9e9;color:#111;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",Arial,sans-serif}
-.top{position:sticky;top:0;z-index:50;background:white;border-bottom:1px solid #ddd;padding:10px 12px;display:flex;gap:7px;align-items:center;justify-content:space-between}
-.top b{font-size:14px}.top .buttons{display:flex;gap:5px}.top button,.bottom button{border:1px solid #ccc;background:#fff;border-radius:9px;padding:9px 11px;font-weight:700}
-.stage{padding:16px 10px 100px}.paper{width:min(100%,760px);margin:auto;background:#fff;min-height:100vh;padding:38px 30px;box-shadow:0 2px 14px #0001}
-.cover{width:100%;height:190px;background:#aaa;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:2px;cursor:pointer}.cover img{width:100%;height:100%;object-fit:cover;display:none}.cover span{color:white;font-size:42px;font-weight:800}
-.author{text-align:right;font-size:19px;font-weight:700;margin:22px 0 90px}
-h1{font-size:44px;line-height:1.15;margin:0 0 20px;letter-spacing:-.05em}h2{font-size:25px;margin:0 0 55px;line-height:1.4}.text{white-space:pre-wrap;word-break:keep-all;line-height:1.9;outline:none}.body{font-size:18px}
-.block{position:relative;margin:0 0 38px}.block.selected{outline:2px dashed #999;outline-offset:8px}.block img{width:100%;height:auto;display:block}
-[contenteditable=true]:focus{outline:2px solid #ddd;outline-offset:3px}
-.bottom{position:fixed;z-index:60;bottom:max(10px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#111;border-radius:14px;padding:8px;display:flex;gap:6px;box-shadow:0 6px 24px #0004}.bottom button{font-size:12px}
-#picker{position:fixed;width:1px;height:1px;opacity:0;pointer-events:none}
-.toast{position:fixed;z-index:100;top:72px;left:50%;transform:translateX(-50%);background:#111;color:#fff;border-radius:9px;padding:9px 12px;font-size:13px;display:none}
-@media(max-width:600px){.paper{padding:25px 19px}.cover{height:135px}.cover span{font-size:30px}.author{margin-bottom:65px;font-size:17px}h1{font-size:35px}h2{font-size:21px;margin-bottom:42px}.body{font-size:16px}.bottom{width:calc(100% - 20px);justify-content:center}.bottom button{padding:10px 9px}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A4 웹 문서 에디터</title>
+    <!-- 예쁜 폰트 로드 (Pretendard & Noto Serif KR) -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* A4 비율 기준 (너비 794px, 높이 1123px at 96 DPI) */
+            --a4-width: 794px;
+            --a4-height: 1123px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: #eef2f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* 상단 컨트롤 패널 (인쇄 시 숨김) */
+        .control-panel {
+            background: #ffffff;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            z-index: 100;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .control-panel button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .btn-add-text { background-color: #4f46e5; color: white; }
+        .btn-add-text:hover { background-color: #4338ca; }
+
+        .btn-add-img { background-color: #059669; color: white; }
+        .btn-add-img:hover { background-color: #047857; }
+
+        .btn-print { background-color: #475569; color: white; }
+        .btn-print:hover { background-color: #334155; }
+
+        /* 문서 컨테이너 (페이지들이 들어가는 곳) */
+        .document-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            width: 100%;
+            padding-bottom: 50px;
+        }
+
+        /* A4 페이지 스타일 */
+        .a4-page {
+            width: var(--a4-width);
+            height: var(--a4-height);
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            padding: 60px 70px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        /* 페이지 내부 컨텐츠 영역 */
+        .page-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        /* 페이지 하단 페이지네이션 바 (‹ 1 / 2 ›) */
+        .page-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 15px;
+            margin-top: auto;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .nav-btn {
+            background: none;
+            border: 1px solid #cbd5e1;
+            padding: 4px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #475569;
+            transition: background 0.2s;
+        }
+        .nav-btn:hover:not(:disabled) {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* 아이템 공통 스타일 (글/그림) */
+        .item-box {
+            position: relative;
+            border-radius: 8px;
+            transition: border 0.2s;
+        }
+        .item-box:hover .delete-btn {
+            opacity: 1;
+        }
+
+        /* 글 아이템 스타일 */
+        .text-item {
+            font-family: 'Noto Serif KR', serif; /* 예쁜 소설/문서용 명조체 적용 */
+            font-size: 16px;
+            line-height: 1.8;
+            color: #1e293b;
+            outline: none;
+            padding: 8px;
+            border: 1px dashed transparent;
+            word-break: break-all;
+            white-space: pre-wrap;
+        }
+        .text-item:focus {
+            border-color: #cbd5e1;
+            background: #fafafa;
+        }
+
+        /* 그림 아이템 스타일 */
+        .image-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 350px;
+            overflow: hidden;
+        }
+        .image-item img {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        /* 삭제 버튼 */
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .delete-btn:hover {
+            background: rgb(220, 38, 38);
+        }
+
+        /* 인쇄 최적화 */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .control-panel {
+                display: none;
+            }
+            .document-container {
+                gap: 0;
+            }
+            .a4-page {
+                box-shadow: none;
+                margin: 0;
+                page-break-after: always;
+                break-after: page;
+            }
+            .delete-btn {
+                display: none !important;
+            }
+            .text-item {
+                border: none !important;
+                background: transparent !important;
+            }
+        }
+    </style>
 </head>
 <body>
-<header class="top">
-<b>작품 페이지 편집기</b>
-<div class="buttons"><button id="save">저장</button><button id="export">내보내기</button></div>
-</header>
 
-<div class="toast" id="toast"></div>
+    <!-- 상단 컨트롤 버튼 패널 -->
+    <div class="control-panel">
+        <button class="btn-add-text" onclick="addItem('text')">＋ 글 추가</button>
+        <button class="btn-add-img" onclick="addItem('image')">＋ 그림 추가</button>
+        <button class="btn-print" onclick="window.print()">🖨️️ 인쇄 / PDF 저장</button>
+    </div>
 
-<main class="stage">
-<section class="paper" id="paper">
-  <div class="cover" id="cover">
-    <img id="coverImage">
-    <span id="coverPlaceholder">대표 이미지<br><small style="font-size:14px">탭해서 추가</small></span>
-  </div>
+    <!-- 문서 전체 영역 -->
+    <div id="documentContainer" class="document-container">
+        <!-- 페이지들이 자바스크립트에 의해 동적으로 생성됩니다 -->
+    </div>
 
-  <div class="author" contenteditable="true">작가이름, 커미션</div>
-  <h1 contenteditable="true">제목</h1>
-  <h2 contenteditable="true">부제목</h2>
+    <script>
+        // 문서 전체 데이터를 담는 배열 (글 또는 그림 객체 저장)
+        // 새로고침해도 유지되도록 localStorage 연동
+        let items = JSON.parse(localStorage.getItem('a4_doc_items')) || [
+            { type: 'text', content: '여기에 첫 번째 글을 작성해보세요. 글이 길어지거나 그림이 추가되면 자동으로 다음 페이지로 넘어갑니다.' }
+        ];
 
-  <div id="content">
-    <div class="block" data-kind="text"><div class="text body" contenteditable="true">여기에 글을 입력하세요.
+        // 페이지별 렌더링을 계산하는 핵심 함수
+        function renderDocument() {
+            const container = document.getElementById('documentContainer');
+            container.innerHTML = '';
 
-긴 글도 계속 아래로 이어집니다.</div></div>
-  </div>
-</section>
-</main>
+            if (items.length === 0) {
+                // 비어있을 경우 빈 페이지 1장 표시
+                container.appendChild(createPageElement(1, 1, []));
+                saveData();
+                return;
+            }
 
-<input id="picker" type="file" accept="image/*">
+            // 가상으로 DOM에 페이지들을 그려가며 높이를 체크하여 페이지 분할 수행
+            // 정확한 A4 높이 측정을 위해 임시 측정용 컨테이너 활용
+            let pagesItems = distributeItemsIntoPages();
+            let totalPages = pagesItems.length;
 
-<div class="bottom">
-<button id="addText">＋ 글</button>
-<button id="addImage">＋ 그림</button>
-<button id="delete">삭제</button>
-<button id="reset">초기화</button>
-</div>
+            pagesItems.forEach((pageItems, index) => {
+                let pageNum = index + 1;
+                let pageEl = createPageElement(pageNum, totalPages, pageItems);
+                container.appendChild(pageEl);
+            });
 
-<script>
-const paper=document.getElementById("paper");
-const content=document.getElementById("content");
-const picker=document.getElementById("picker");
-const cover=document.getElementById("cover");
-const coverImage=document.getElementById("coverImage");
-const coverPlaceholder=document.getElementById("coverPlaceholder");
-const toast=document.getElementById("toast");
-let mode="content", selected=null;
+            saveData();
+        }
 
-function message(t){toast.textContent=t;toast.style.display="block";setTimeout(()=>toast.style.display="none",1500)}
-function selectBlock(b){document.querySelectorAll(".selected").forEach(x=>x.classList.remove("selected"));selected=b;if(b)b.classList.add("selected")}
-content.addEventListener("click",e=>{let b=e.target.closest(".block");if(b&&!e.target.isContentEditable){selectBlock(b)}});
+        // 아이템들을 높이에 맞춰 페이지별로 나누는 알고리즘
+        function distributeItemsIntoPages() {
+            // 임시 측정 컨테이너 생성 ( 화면 밖에 보이지 않게 배치 )
+            let measurePage = document.createElement('div');
+            measurePage.className = 'a4-page';
+            measurePage.style.position = 'absolute';
+            measurePage.style.visibility = 'hidden';
+            measurePage.style.top = '-9999px';
+            document.body.appendChild(measurePage);
 
-cover.addEventListener("click",()=>{
- mode="cover";
- picker.value="";
- picker.click();
-});
+            let contentArea = document.createElement('div');
+            contentArea.className = 'page-content';
+            measurePage.appendChild(contentArea);
 
-document.getElementById("addImage").addEventListener("click",()=>{
- mode="content";
- picker.value="";
- picker.click();
-});
+            // A4 페이지 내부 콘텐츠의 최대 가용 높이 (패딩 제외한 높이: 1123px - 120px 패딩 - 50px 하단바)
+            const MAX_CONTENT_HEIGHT = 930; 
 
-picker.addEventListener("change",function(){
- const file=this.files && this.files[0];
- if(!file)return;
- if(!file.type.startsWith("image/")){message("이미지 파일을 선택해주세요.");return}
- const reader=new FileReader();
- reader.onload=function(e){
-   if(mode==="cover"){
-     coverImage.src=e.target.result;
-     coverImage.style.display="block";
-     coverPlaceholder.style.display="none";
-     message("대표 이미지가 추가됐어요.");
-   }else{
-     const b=document.createElement("div");
-     b.className="block";
-     b.dataset.kind="image";
-     const img=document.createElement("img");
-     img.src=e.target.result;
-     img.alt="";
-     b.appendChild(img);
-     content.appendChild(b);
-     selectBlock(b);
-     message("그림이 추가됐어요.");
-   }
-   saveLocal();
- };
- reader.readAsDataURL(file);
-});
+            let pages = [];
+            let currentPageItems = [];
+            let currentHeight = 0;
 
-document.getElementById("addText").addEventListener("click",()=>{
- const b=document.createElement("div");b.className="block";b.dataset.kind="text";
- const d=document.createElement("div");d.className="text body";d.contentEditable="true";d.textContent="새 글을 입력하세요.";
- b.appendChild(d);content.appendChild(b);selectBlock(b);d.focus();saveLocal();
-});
+            items.forEach((item, index) => {
+                let itemEl = createItemElement(item, index);
+                contentArea.appendChild(itemEl);
+                
+                // 렌더링된 실제 높이 측정
+                let itemHeight = itemEl.offsetHeight + 16; // gap 고려
 
-document.getElementById("delete").addEventListener("click",()=>{
- if(selected){selected.remove();selected=null;saveLocal();message("삭제했어요.");}
-});
+                // 만약 현재 아이템을 넣었을 때 최대 높이를 초과하고, 페이지에 이미 무언가가 있다면 다음 페이지로 분기
+                if (currentHeight + itemHeight > MAX_CONTENT_HEIGHT && currentPageItems.length > 0) {
+                    pages.push(currentPageItems);
+                    currentPageItems = [item];
+                    contentArea.innerHTML = ''; // 측정 영역 초기화 후 현재 아이템 다시 측정
+                    contentArea.appendChild(itemEl);
+                    currentHeight = itemEl.offsetHeight + 16;
+                } else {
+                    currentPageItems.push(item);
+                    currentHeight += itemHeight;
+                }
+            });
 
-function saveLocal(){
- localStorage.setItem("mobileEditorContent",content.innerHTML);
- localStorage.setItem("mobileEditorTop",JSON.stringify({
-  author:document.querySelector(".author").innerHTML,
-  title:document.querySelector("h1").innerHTML,
-  subtitle:document.querySelector("h2").innerHTML
- }));
- localStorage.setItem("mobileEditorCover",coverImage.src||"");
-}
-function load(){
- const top=JSON.parse(localStorage.getItem("mobileEditorTop")||"null");
- if(top){document.querySelector(".author").innerHTML=top.author;document.querySelector("h1").innerHTML=top.title;document.querySelector("h2").innerHTML=top.subtitle}
- const c=localStorage.getItem("mobileEditorContent");if(c)content.innerHTML=c;
- const img=localStorage.getItem("mobileEditorCover");if(img){coverImage.src=img;coverImage.style.display="block";coverPlaceholder.style.display="none"}
-}
-load();
+            if (currentPageItems.length > 0) {
+                pages.push(currentPageItems);
+            }
 
-document.getElementById("save").addEventListener("click",()=>{saveLocal();message("저장했어요.")});
-document.getElementById("reset").addEventListener("click",()=>{if(confirm("전부 초기화할까요?")){localStorage.clear();location.reload()}});
+            document.body.removeChild(measurePage);
+            return pages;
+        }
 
-document.getElementById("export").addEventListener("click",()=>{
- const clone=paper.cloneNode(true);
- clone.querySelectorAll("[contenteditable]").forEach(x=>x.removeAttribute("contenteditable"));
- clone.querySelectorAll(".selected").forEach(x=>x.classList.remove("selected"));
- const css=`body{margin:0;background:#e9e9e9;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",Arial,sans-serif}.paper{max-width:760px;min-height:100vh;margin:auto;background:#fff;padding:38px 30px;box-sizing:border-box}.cover{height:190px;background:#aaa;overflow:hidden}.cover img{width:100%;height:100%;object-fit:cover}.author{text-align:right;font-size:19px;font-weight:700;margin:22px 0 90px}h1{font-size:44px;line-height:1.15}h2{font-size:25px;margin-bottom:55px}.block{margin-bottom:38px}.text{white-space:pre-wrap;word-break:keep-all;line-height:1.9}.body{font-size:18px}.block img{width:100%;display:block;height:auto}`;
- const doc='<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body>'+clone.outerHTML+'</body></html>';
- const blob=new Blob([doc],{type:"text/html;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="작품페이지.html";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-});
-</script>
+        // 개별 페이지 DOM 엘리먼트 생성
+        function createPageElement(pageNum, totalPages, pageItems) {
+            let pageDiv = document.createElement('div');
+            pageDiv.className = 'a4-page';
+
+            let contentDiv = document.createElement('div');
+            contentDiv.className = 'page-content';
+
+            pageDiv.appendChild(contentDiv);
+
+            // 해당 페이지에 속한 아이템들 채우기
+            pageItems.forEach(item => {
+                let originalIndex = items.indexOf(item);
+                let itemEl = createItemElement(item, originalIndex);
+                contentDiv.appendChild(itemEl);
+            });
+
+            // 하단 페이지네이션 바 생성 (‹ 1 / 2 ›)
+            let footerDiv = document.createElement('div');
+            footerDiv.className = 'page-footer';
+            
+            let prevBtn = document.createElement('button');
+            prevBtn.className = 'nav-btn';
+            prevBtn.innerHTML = '‹ 이전';
+            prevBtn.disabled = pageNum === 1;
+            prevBtn.onclick = () => scrollToPage(pageNum - 1);
+
+            let pageIndicator = document.createElement('span');
+            pageIndicator.innerHTML = `${pageNum} / ${totalPages}`;
+
+            let nextBtn = document.createElement('button');
+            nextBtn.className = 'nav-btn';
+            nextBtn.innerHTML = '다음 ›';
+            nextBtn.disabled = pageNum === totalPages;
+            nextBtn.onclick = () => scrollToPage(pageNum + 1);
+
+            footerDiv.appendChild(prevBtn);
+            footerDiv.appendChild(pageIndicator);
+            footerDiv.appendChild(nextBtn);
+
+            pageDiv.appendChild(footerDiv);
+
+            return pageDiv;
+        }
+
+        // 글 또는 그림 아이템 DOM 생성
+        function createItemElement(item, index) {
+            let wrapper = document.createElement('div');
+            wrapper.className = 'item-box';
+
+            // 삭제 버튼
+            let delBtn = document.createElement('button');
+            delBtn.className = 'delete-btn';
+            delBtn.innerHTML = '✕';
+            delBtn.title = '삭제';
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                deleteItem(index);
+            };
+            wrapper.appendChild(delBtn);
+
+            if (item.type === 'text') {
+                let textDiv = document.createElement('div');
+                textDiv.className = 'text-item';
+                textDiv.contentEditable = true;
+                textDiv.innerText = item.content;
+                
+                // 실시간 내용 수정 반영
+                textDiv.oninput = (e) => {
+                    items[index].content = e.target.innerText;
+                    saveData();
+                };
+                wrapper.appendChild(textDiv);
+            } else if (item.type === 'image') {
+                let imgDiv = document.createElement('div');
+                imgDiv.className = 'image-item';
+
+                if (item.content) {
+                    let img = document.createElement('img');
+                    img.src = item.content;
+                    imgDiv.appendChild(img);
+                } else {
+                    // 이미지가 아직 없을 경우 파일 업로드 인풋 제공
+                    let fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.accept = 'image/*';
+                    fileInput.onchange = (e) => {
+                        let file = e.target.files[0];
+                        if (file) {
+                            let reader = new FileReader();
+                            reader.onload = (uploadEvent) => {
+                                items[index].content = uploadEvent.target.result;
+                                renderDocument();
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    };
+                    imgDiv.appendChild(fileInput);
+                }
+                wrapper.appendChild(imgDiv);
+            }
+
+            return wrapper;
+        }
+
+        // 아이템 추가 함수
+        function addItem(type) {
+            items.push({
+                type: type,
+                content: type === 'text' ? '새로운 내용을 입력하세요...' : ''
+            });
+            renderDocument();
+        }
+
+        // 아이템 삭제 함수
+        function deleteItem(index) {
+            items.splice(index, 1);
+            renderDocument();
+        }
+
+        // 특정 페이지로 부드럽게 스크롤 이동
+        function scrollToPage(pageNum) {
+            const pages = document.querySelectorAll('.a4-page');
+            if (pages[pageNum - 1]) {
+                pages[pageNum - 1].scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // 로컬 스토리지 저장
+        function saveData() {
+            localStorage.setItem('a4_doc_items', JSON.stringify(items));
+        }
+
+        // 초기렌더링 실행
+        window.onload = () => {
+            renderDocument();
+        };
+    </script>
 </body>
 </html>
