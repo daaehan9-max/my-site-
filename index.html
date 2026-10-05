@@ -408,3 +408,22 @@
     </script>
 </body>
 </html>
+
+.text-item, .log-text, p {
+    /* 1. 좌우 양쪽 정렬로 글 끝선을 반듯하게 맞춤 */
+    text-align: justify;
+    
+    /* 2. 가독성을 높이는 줄 간격 */
+    line-height: 1.9;
+    
+    /* 3. 단어 단위로 잘리지 않고 자연스럽게 줄바꿈 되도록 설정 */
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    
+    /* 4. 공백 및 줄바꿈 형태 유지 */
+    white-space: pre-wrap;
+    
+    /* 5. 감성적인 웹소설 스타일에 어울리는 명조 계열 폰트 적용 */
+    font-family: 'Noto Serif KR', 'Batang', serif;
+}
+
