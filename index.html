@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PairMaker - 최종 완성 템플릿</title>
-    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>PairMaker - 최종 완성 템플릿 v2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <style>
         * {
@@ -129,7 +129,7 @@
         /* 작가이름, 커미주 */
         .author-info {
             text-align: right;
-            font-size: 14px;
+            font-size: 15px;
             color: #475569;
             font-weight: 600;
             outline: none;
@@ -140,22 +140,22 @@
             border-radius: 4px;
         }
 
-        /* 제목 및 부제목 (폰트 변경 및 두꺼운 글씨 적용) */
+        /* 제목 및 부제목 (폰트 변경 및 아주 두꺼운 글씨 적용) */
         .title-area {
             margin-bottom: 6px;
         }
         .main-title {
             font-family: 'Pretendard', sans-serif;
-            font-size: 23px; /* 크기 살짝 키움 */
-            font-weight: 800; /* 매우 두꺼운 글씨 */
+            font-size: 26px; /* 확실하게 키운 제목 크기 */
+            font-weight: 900; /* 가장 두꺼운 Extra Bold */
             color: #0f172a;
             outline: none;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
         .sub-title {
             font-family: 'Pretendard', sans-serif;
-            font-size: 15px; /* 크기 살짝 키움 */
-            font-weight: 600;
+            font-size: 17px; /* 확실하게 키운 부제목 크기 */
+            font-weight: 700; /* 두껍게 설정 */
             color: #475569;
             outline: none;
         }
@@ -164,10 +164,10 @@
             border-radius: 4px;
         }
 
-        /* 본문 내용 영역 (가독성 좋은 고운바탕 폰트 및 살짝 키운 글자 크기) */
+        /* 본문 내용 영역 (눈에 띄게 키운 고운바탕 폰트) */
         .content-area {
             font-family: 'Gowun Batang', serif;
-            font-size: 15.5px; /* 요청하신 대로 살짝 키움 (+2 정도 체감) */
+            font-size: 18px; /* 요청하신 대로 2포인트 이상 확실히 키움 */
             line-height: 1.85;
             color: #1e293b;
             text-align: justify;
@@ -218,13 +218,14 @@
     <input type="file" id="imageSelector" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
 
     <script>
-        let pagesData = JSON.parse(localStorage.getItem('pairmaker_pages')) || [
+        // 최신 데이터 구조를 강제로 불러오거나 초기화
+        let pagesData = JSON.parse(localStorage.getItem('pairmaker_pages_v2')) || [
             {
                 image: '',
                 author: '작가이름, 커미주',
-                title: '제목을 입력하세요',
-                subtitle: '부제 및 상세 설명을 입력하세요',
-                content: '글자 크기와 폰트가 보기 좋게 조정되었으며, 인쇄 버튼을 누르면 전체 페이지 미리보기 창이 뜨면서 깔끔하게 PDF나 종이로 저장할 수 있습니다.'
+                title: '여기는 두껍고 커진 제목입니다',
+                subtitle: '여기는 부제목 영역입니다',
+                content: '본문 글자 크기가 확실하게 커졌으며, 폰트도 새롭게 적용되었습니다. 상단의 [인쇄 / PDF 저장] 버튼을 누르면 전체 페이지 미리보기 창이 뜨면서 깔끔하게 저장됩니다.'
             }
         ];
 
@@ -349,7 +350,6 @@
             
             window.print();
 
-            // 인쇄 창이 닫히거나 한 뒤 현재 페이지만 보이도록 원복
             setTimeout(() => {
                 renderDocument();
             }, 500);
@@ -390,7 +390,7 @@
         }
 
         function saveData() {
-            localStorage.setItem('pairmaker_pages', JSON.stringify(pagesData));
+            localStorage.setItem('pairmaker_pages_v2', JSON.stringify(pagesData));
         }
 
         window.onload = () => {
