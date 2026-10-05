@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PairMaker - 모바일 최적화 템플릿</title>
+    <title>PairMaker - 레이아웃 템플릿</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Pretendard:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
@@ -66,12 +66,12 @@
             max-width: 740px;
         }
 
-        /* A4 페이지 카드형 반응형 프레임 (카톡 잘림 완벽 차단) */
+        /* A4 페이지 카드형 반응형 프레임 */
         .a4-page {
             width: 100%;
             background: #ffffff;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            padding: 25px 20px;
+            padding: 20px 18px;
             display: flex;
             flex-direction: column;
             position: relative;
@@ -82,7 +82,7 @@
             .a4-page {
                 width: 740px;
                 min-height: 1046px;
-                padding: 60px 70px;
+                padding: 45px 55px;
             }
         }
 
@@ -90,14 +90,14 @@
         .template-header {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
-        /* 사진/그림 박스 */
+        /* 사진/그림 박스: 세로로 줄임 */
         .image-box {
             width: 100%;
-            height: 200px;
+            height: 130px; /* 기존보다 세로 높이를 줄임 */
             background: #f1f5f9;
             border: 2px dashed #cbd5e1;
             border-radius: 6px;
@@ -109,7 +109,7 @@
             cursor: pointer;
         }
         @media (min-width: 768px) {
-            .image-box { height: 260px; }
+            .image-box { height: 160px; } /* PC에서도 적당히 컴팩트하게 조절 */
         }
 
         .image-box img {
@@ -141,21 +141,21 @@
 
         /* 제목 및 부제목 */
         .title-area {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .main-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             color: #0f172a;
             outline: none;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         @media (min-width: 768px) {
-            .main-title { font-size: 24px; }
+            .main-title { font-size: 21px; }
         }
 
         .sub-title {
-            font-size: 14px;
+            font-size: 13px;
             color: #475569;
             outline: none;
         }
@@ -164,11 +164,11 @@
             border-radius: 4px;
         }
 
-        /* 본문 내용 영역 */
+        /* 본문 내용 영역: 글자 크기를 살짝 줄여서 공간을 넓힘 */
         .content-area {
             font-family: 'Noto Serif KR', serif;
-            font-size: 14px;
-            line-height: 1.8;
+            font-size: 13px; /* 글을 더 많이 적을 수 있도록 폰트 크기 미세 조정 */
+            line-height: 1.75;
             color: #1e293b;
             text-align: justify;
             word-break: break-all;
@@ -179,7 +179,7 @@
             margin-bottom: 15px;
         }
         @media (min-width: 768px) {
-            .content-area { font-size: 15px; line-height: 1.9; }
+            .content-area { font-size: 13.5px; line-height: 1.85; }
         }
         .content-area:focus {
             background: #f8fafc;
@@ -192,7 +192,7 @@
             justify-content: space-between;
             align-items: center;
             border-top: 1px solid #e2e8f0;
-            padding-top: 10px;
+            padding-top: 8px;
             height: 35px;
             font-size: 12px;
             color: #64748b;
@@ -237,7 +237,7 @@
                 author: '작가이름, 커미주',
                 title: '제목을 입력하세요',
                 subtitle: '부제 및 상세 설명을 입력하세요',
-                content: '여기에 내용을 작성하세요. 카카오톡 및 모바일 화면에서도 잘림 없이 반응형으로 깔끔하게 표시됩니다.'
+                content: '그림 칸이 컴팩트하게 줄어들고 글씨 크기가 최적화되어 한 페이지에 더 많은 내용을 담을 수 있습니다.'
             }
         ];
 
