@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>웹 소설 / 문서 사이트</title>
-    <!-- 예쁜 폰트 로드 -->
+    <title>PairMaker - 레이아웃 템플릿</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Pretendard:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
@@ -20,30 +19,26 @@
         }
 
         body {
-            font-family: 'Noto Serif KR', 'Batang', serif;
-            background-color: #eef2f5;
-            color: #222;
+            font-family: 'Pretendard', sans-serif;
+            background-color: #e2e8f0;
+            color: #1a202c;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 30px 20px;
         }
 
         /* 상단 제어 패널 (인쇄 시 숨김) */
         .control-panel {
             background: #ffffff;
-            padding: 12px 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 12px 24px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             display: flex;
             gap: 12px;
             margin-bottom: 30px;
             z-index: 100;
-            justify-content: center;
-            align-items: center;
-            max-width: 800px;
-            width: 100%;
         }
 
         .control-panel button {
@@ -56,9 +51,10 @@
             transition: background 0.2s;
         }
 
-        .btn-add-text { background-color: #4f46e5; color: white; }
-        .btn-add-img { background-color: #059669; color: white; }
+        .btn-add { background-color: #4f46e5; color: white; }
+        .btn-add:hover { background-color: #4338ca; }
         .btn-print { background-color: #475569; color: white; }
+        .btn-print:hover { background-color: #334155; }
 
         /* 문서 컨테이너 */
         .document-container {
@@ -67,15 +63,14 @@
             align-items: center;
             gap: 40px;
             width: 100%;
-            padding-bottom: 50px;
         }
 
-        /* A4 페이지 고정 프레임 (원래 디자인 형식 유지) */
+        /* A4 페이지 고정 프레임 */
         .a4-page {
             width: var(--a4-width);
             height: var(--a4-height);
-            background: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            background: #ffffff;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.12);
             padding: 60px 70px;
             display: flex;
             flex-direction: column;
@@ -84,17 +79,93 @@
             border-radius: 4px;
         }
 
-        /* 페이지 내부 컨텐츠 영역 */
-        .page-content {
+        /* 템플릿 레이아웃 내부 스타일 (올려주신 이미지 구조 반영)[span_1](start_span)[span_1](end_span) */
+        .template-header {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            flex-grow: 1;
-            height: calc(var(--a4-height) - 170px);
-            overflow: hidden;
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
-        /* 페이지 하단 페이지네이션 바 (‹ 1 / 2 ›) */
+        /* 사진/그림 박스 영역[span_2](start_span)[span_2](end_span) */
+        .image-box {
+            width: 100%;
+            height: 260px;
+            background: #f1f5f9;
+            border: 2px dashed #cbd5e1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-box span {
+            color: #64748b;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        /* 작가이름, 커미주[span_3](start_span)[span_3](end_span) */
+        .author-info {
+            text-align: right;
+            font-size: 14px;
+            color: #475569;
+            font-weight: 600;
+            outline: none;
+            padding: 2px;
+        }
+        .author-info:focus {
+            background: #f8fafc;
+            border-radius: 4px;
+        }
+
+        /* 제목 및 부제목[span_4](start_span)[span_4](end_span) */
+        .title-area {
+            margin-bottom: 15px;
+        }
+        .main-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            outline: none;
+            margin-bottom: 4px;
+        }
+        .sub-title {
+            font-size: 16px;
+            color: #475569;
+            outline: none;
+        }
+        .main-title:focus, .sub-title:focus {
+            background: #f8fafc;
+            border-radius: 4px;
+        }
+
+        /* 본문 내용 영역[span_5](start_span)[span_5](end_span) */
+        .content-area {
+            font-family: 'Noto Serif KR', serif;
+            font-size: 15px;
+            line-height: 1.9;
+            color: #1e293b;
+            text-align: justify;
+            word-break: break-all;
+            white-space: pre-wrap;
+            outline: none;
+            flex-grow: 1;
+            padding: 4px;
+        }
+        .content-area:focus {
+            background: #f8fafc;
+            border-radius: 4px;
+        }
+
+        /* 하단 페이지네이션 바 */
         .page-footer {
             display: flex;
             justify-content: space-between;
@@ -102,15 +173,16 @@
             border-top: 1px solid #e2e8f0;
             padding-top: 12px;
             height: 40px;
-            font-size: 14px;
+            font-size: 13px;
             color: #64748b;
+            flex-shrink: 0;
         }
 
         .nav-btn {
             background: none;
             border: 1px solid #cbd5e1;
             padding: 4px 12px;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
             font-weight: 600;
             color: #475569;
@@ -120,199 +192,146 @@
             cursor: not-allowed;
         }
 
-        /* 글 및 그림 아이템 스타일 */
-        .item-box {
-            position: relative;
-            width: 100%;
-        }
-        .item-box:hover .delete-btn {
-            opacity: 1;
-        }
-
-        .text-item {
-            font-family: 'Noto Serif KR', serif;
-            font-size: 16px;
-            line-height: 1.9;
-            color: #1a202c;
-            outline: none;
-            padding: 6px 4px;
-            border: 1px dashed transparent;
-            text-align: justify;
-            word-break: break-all;
-            white-space: pre-wrap;
-        }
-        .text-item:focus {
-            border-color: #cbd5e1;
-            background: #fafafa;
-            border-radius: 4px;
-        }
-
-        .image-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: #f8fafc;
-            border: 2px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 10px;
-            max-height: 300px;
-            overflow: hidden;
-            width: 100%;
-        }
-        .image-item img {
-            max-width: 100%;
-            max-height: 270px;
-            object-fit: contain;
-            border-radius: 4px;
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            background: rgba(239, 68, 68, 0.9);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            font-size: 11px;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-        }
-
         @media print {
             body { background: none; padding: 0; }
             .control-panel { display: none; }
-            .document-container { gap: 0; }
             .a4-page { box-shadow: none; margin: 0; page-break-after: always; }
-            .delete-btn { display: none !important; }
-            .text-item { border: none !important; background: transparent !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 상단 컨트롤 (원래 형식을 유지하면서 글/그림을 추가할 수 있는 패널) -->
     <div class="control-panel">
-        <button class="btn-add-text" onclick="addItem('text')">＋ 글 추가</button>
-        <button class="btn-add-img" onclick="addItem('image')">＋ 그림 추가</button>
-        <button class="btn-print" onclick="window.print()">🖨 인쇄 / PDF</button>
+        <button class="btn-add" onclick="addPage()">＋ 페이지 추가</button>
+        <button class="btn-print" onclick="window.print()">🖨 인쇄 / PDF 저장</button>
     </div>
 
-    <!-- 문서 전체 영역 -->
     <div id="documentContainer" class="document-container"></div>
 
+    <input type="file" id="imageSelector" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+
     <script>
-        // 원래 작성하시던 데이터 구조를 반영 (localStorage로 내용 유지)
-        let items = JSON.parse(localStorage.getItem('my_site_content_items')) || [
-            { type: 'text', content: '여기에 원래 사이트의 형식과 내용을 채워넣으세요. 글이 길어지면 자동으로 다음 페이지가 생성됩니다.' }
+        // 페이지별 데이터 구조 (사진, 작가, 제목, 부제목, 내용)
+        let pagesData = JSON.parse(localStorage.getItem('pairmaker_pages')) || [
+            {
+                image: '',
+                author: '작가이름, 커미주',
+                title: '제목을 입력하세요',
+                subtitle: '부제 및 상세 설명을 입력하세요',
+                content: '여기에 내용을 작성하세요. 양쪽 정렬과 깔끔한 명조체 폰트가 적용되어 가독성이 뛰어납니다.'
+            }
         ];
+
+        let activeImagePageIndex = null;
 
         function renderDocument() {
             const container = document.getElementById('documentContainer');
             container.innerHTML = '';
 
-            if (items.length === 0) {
-                container.appendChild(createPageElement(1, 1, []));
-                saveData();
-                return;
-            }
+            let totalPages = pagesData.length;
 
-            let pagesItems = distributeItemsIntoPages();
-            let totalPages = pagesItems.length;
-
-            pagesItems.forEach((pageItems, index) => {
-                let pageNum = index + 1;
-                let pageEl = createPageElement(pageNum, totalPages, pageItems);
+            pagesData.forEach((pageData, index) => {
+                let pageEl = createPageElement(index, pageData, totalPages);
                 container.appendChild(pageEl);
             });
 
             saveData();
         }
 
-        function distributeItemsIntoPages() {
-            let measurePage = document.createElement('div');
-            measurePage.className = 'a4-page';
-            measurePage.style.position = 'absolute';
-            measurePage.style.visibility = 'hidden';
-            measurePage.style.top = '-9999px';
-            document.body.appendChild(measurePage);
-
-            let contentArea = document.createElement('div');
-            contentArea.className = 'page-content';
-            measurePage.appendChild(contentArea);
-
-            const MAX_CONTENT_HEIGHT = 830; 
-
-            let pages = [];
-            let currentPageItems = [];
-            let currentHeight = 0;
-
-            items.forEach((item, index) => {
-                let itemEl = createItemElement(item, index);
-                contentArea.appendChild(itemEl);
-                
-                let itemHeight = itemEl.offsetHeight + 16;
-
-                if (currentHeight + itemHeight > MAX_CONTENT_HEIGHT && currentPageItems.length > 0) {
-                    pages.push(currentPageItems);
-                    currentPageItems = [item];
-                    contentArea.innerHTML = '';
-                    contentArea.appendChild(itemEl);
-                    currentHeight = itemEl.offsetHeight + 16;
-                } else {
-                    currentPageItems.push(item);
-                    currentHeight += itemHeight;
-                }
-            });
-
-            if (currentPageItems.length > 0) {
-                pages.push(currentPageItems);
-            }
-
-            document.body.removeChild(measurePage);
-            return pages;
-        }
-
-        function createPageElement(pageNum, totalPages, pageItems) {
+        function createPageElement(index, data, totalPages) {
             let pageDiv = document.createElement('div');
             pageDiv.className = 'a4-page';
 
+            // 상단 구조 (사진, 작가, 제목)[span_6](start_span)[span_6](end_span)
+            let headerDiv = document.createElement('div');
+            headerDiv.className = 'template-header';
+
+            // 1. 사진/그림 박스[span_7](start_span)[span_7](end_span)
+            let imgBox = document.createElement('div');
+            imgBox.className = 'image-box';
+            if (data.image) {
+                let img = document.createElement('img');
+                img.src = data.image;
+                imgBox.appendChild(img);
+            } else {
+                let span = document.createElement('span');
+                span.innerText = '사진 / 그림을 추가하려면 클릭하세요';
+                imgBox.appendChild(span);
+            }
+            imgBox.onclick = () => {
+                activeImagePageIndex = index;
+                document.getElementById('imageSelector').click();
+            };
+            headerDiv.appendChild(imgBox);
+
+            // 2. 작가 이름 / 커미주[span_8](start_span)[span_8](end_span)
+            let authorDiv = document.createElement('div');
+            authorDiv.className = 'author-info';
+            authorDiv.contentEditable = true;
+            authorDiv.innerText = data.author;
+            authorDiv.oninput = (e) => {
+                pagesData[index].author = e.target.innerText;
+                saveData();
+            };
+            headerDiv.appendChild(authorDiv);
+
+            // 3. 제목 및 부제목[span_9](start_span)[span_9](end_span)
+            let titleArea = document.createElement('div');
+            titleArea.className = 'title-area';
+
+            let titleInput = document.createElement('div');
+            titleInput.className = 'main-title';
+            titleInput.contentEditable = true;
+            titleInput.innerText = data.title;
+            titleInput.oninput = (e) => {
+                pagesData[index].title = e.target.innerText;
+                saveData();
+            };
+
+            let subTitleInput = document.createElement('div');
+            subTitleInput.className = 'sub-title';
+            subTitleInput.contentEditable = true;
+            subTitleInput.innerText = data.subtitle;
+            subTitleInput.oninput = (e) => {
+                pagesData[index].subtitle = e.target.innerText;
+                saveData();
+            };
+
+            titleArea.appendChild(titleInput);
+            titleArea.appendChild(subTitleInput);
+            headerDiv.appendChild(titleArea);
+
+            pageDiv.appendChild(headerDiv);
+
+            // 4. 내용 영역[span_10](start_span)[span_10](end_span)
             let contentDiv = document.createElement('div');
-            contentDiv.className = 'page-content';
+            contentDiv.className = 'content-area';
+            contentDiv.contentEditable = true;
+            contentDiv.innerText = data.content;
+            contentDiv.oninput = (e) => {
+                pagesData[index].content = e.target.innerText;
+                saveData();
+            };
             pageDiv.appendChild(contentDiv);
 
-            pageItems.forEach(item => {
-                let originalIndex = items.indexOf(item);
-                let itemEl = createItemElement(item, originalIndex);
-                contentDiv.appendChild(itemEl);
-            });
-
-            // 하단 페이지네이션 바 (‹ 1 / 2 ›)
+            // 하단 페이지네이션 바
             let footerDiv = document.createElement('div');
             footerDiv.className = 'page-footer';
             
             let prevBtn = document.createElement('button');
             prevBtn.className = 'nav-btn';
-            prevBtn.innerHTML = '‹ 이전';
-            prevBtn.disabled = pageNum === 1;
-            prevBtn.onclick = () => scrollToPage(pageNum - 1);
+            prevBtn.innerHTML = '‹ 이전 페이지';
+            prevBtn.disabled = index === 0;
+            prevBtn.onclick = () => scrollToPage(index);
 
             let pageIndicator = document.createElement('span');
-            pageIndicator.innerHTML = `${pageNum} / ${totalPages}`;
+            pageIndicator.innerHTML = `${index + 1} / ${totalPages}`;
 
             let nextBtn = document.createElement('button');
             nextBtn.className = 'nav-btn';
-            nextBtn.innerHTML = '다음 ›';
-            nextBtn.disabled = pageNum === totalPages;
-            nextBtn.onclick = () => scrollToPage(pageNum + 1);
+            nextBtn.innerHTML = '다음 페이지 ›';
+            nextBtn.disabled = index === totalPages - 1;
+            nextBtn.onclick = () => scrollToPage(index + 2);
 
             footerDiv.appendChild(prevBtn);
             footerDiv.appendChild(pageIndicator);
@@ -322,73 +341,28 @@
             return pageDiv;
         }
 
-        function createItemElement(item, index) {
-            let wrapper = document.createElement('div');
-            wrapper.className = 'item-box';
-
-            let delBtn = document.createElement('button');
-            delBtn.className = 'delete-btn';
-            delBtn.innerHTML = '✕';
-            delBtn.title = '삭제';
-            delBtn.onclick = (e) => {
-                e.stopPropagation();
-                deleteItem(index);
-            };
-            wrapper.appendChild(delBtn);
-
-            if (item.type === 'text') {
-                let textDiv = document.createElement('div');
-                textDiv.className = 'text-item';
-                textDiv.contentEditable = true;
-                textDiv.innerText = item.content;
-                
-                textDiv.oninput = (e) => {
-                    items[index].content = e.target.innerText;
+        function handleImageUpload(event) {
+            let file = event.target.files[0];
+            if (file && activeImagePageIndex !== null) {
+                let reader = new FileReader();
+                reader.onload = (e) => {
+                    pagesData[activeImagePageIndex].image = e.target.result;
                     renderDocument();
                 };
-                wrapper.appendChild(textDiv);
-            } else if (item.type === 'image') {
-                let imgDiv = document.createElement('div');
-                imgDiv.className = 'image-item';
-
-                if (item.content) {
-                    let img = document.createElement('img');
-                    img.src = item.content;
-                    imgDiv.appendChild(img);
-                } else {
-                    let fileInput = document.createElement('input');
-                    fileInput.type = 'file';
-                    fileInput.accept = 'image/*';
-                    fileInput.onchange = (e) => {
-                        let file = e.target.files[0];
-                        if (file) {
-                            let reader = new FileReader();
-                            reader.onload = (uploadEvent) => {
-                                items[index].content = uploadEvent.target.result;
-                                renderDocument();
-                            };
-                            reader.readAsDataURL(file);
-                        }
-                    };
-                    imgDiv.appendChild(fileInput);
-                }
-                wrapper.appendChild(imgDiv);
+                reader.readAsDataURL(file);
             }
-
-            return wrapper;
         }
 
-        function addItem(type) {
-            items.push({
-                type: type,
-                content: type === 'text' ? '새로운 내용을 입력하세요...' : ''
+        function addPage() {
+            pagesData.push({
+                image: '',
+                author: '작가이름, 커미주',
+                title: '새로운 제목',
+                subtitle: '부제목',
+                content: '새로운 페이지의 내용입니다.'
             });
             renderDocument();
-        }
-
-        function deleteItem(index) {
-            items.splice(index, 1);
-            renderDocument();
+            scrollToPage(pagesData.length);
         }
 
         function scrollToPage(pageNum) {
@@ -399,7 +373,7 @@
         }
 
         function saveData() {
-            localStorage.setItem('my_site_content_items', JSON.stringify(items));
+            localStorage.setItem('pairmaker_pages', JSON.stringify(pagesData));
         }
 
         window.onload = () => {
@@ -408,22 +382,3 @@
     </script>
 </body>
 </html>
-
-.text-item, .log-text, p {
-    /* 1. 좌우 양쪽 정렬로 글 끝선을 반듯하게 맞춤 */
-    text-align: justify;
-    
-    /* 2. 가독성을 높이는 줄 간격 */
-    line-height: 1.9;
-    
-    /* 3. 단어 단위로 잘리지 않고 자연스럽게 줄바꿈 되도록 설정 */
-    word-break: keep-all;
-    overflow-wrap: break-word;
-    
-    /* 4. 공백 및 줄바꿈 형태 유지 */
-    white-space: pre-wrap;
-    
-    /* 5. 감성적인 웹소설 스타일에 어울리는 명조 계열 폰트 적용 */
-    font-family: 'Noto Serif KR', 'Batang', serif;
-}
-
