@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PairMaker - 온전한 A4 템플릿</title>
+    <title>PairMaker - 비율 유지 A4 템플릿</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Pretendard:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
@@ -21,31 +21,32 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 20px 10px 60px 10px;
+            padding: 15px 10px 60px 10px;
+            overflow-x: hidden;
         }
 
-        /* 화면 상단 제어 패널 (페이지 넘김 및 추가 버튼은 모두 여기에만 위치) */
+        /* 상단 제어 패널 (화면 상단 고정) */
         .control-panel {
             background: #ffffff;
-            padding: 12px 20px;
-            border-radius: 12px;
+            padding: 10px 16px;
+            border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.25);
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 12px;
+            margin-bottom: 20px;
             position: sticky;
-            top: 15px;
+            top: 10px;
             z-index: 1000;
         }
 
         .control-panel button {
-            padding: 8px 16px;
+            padding: 8px 14px;
             border: none;
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             background-color: #4f46e5;
             color: white;
             transition: background 0.2s;
@@ -55,53 +56,57 @@
 
         .page-indicator {
             font-weight: 700;
-            font-size: 15px;
+            font-size: 14px;
             color: #334155;
-            min-width: 60px;
+            min-width: 50px;
             text-align: center;
         }
 
         .btn-print { background-color: #475569 !important; }
         .btn-print:hover { background-color: #334155 !important; }
 
-        /* 문서 컨테이너 */
-        .document-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
+        /* 문서 뷰포트 wrapper (A4 비율 축소 마법의 영역) */
+        .page-viewport {
+            width: 794px;
+            height: 1123px;
+            position: relative;
+            display: none; /* 기본 숨김, 활성화된 페이지만 표시 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 4px;
+            background: #ffffff;
         }
 
-        /* [핵심] 온전한 A4 용지 규격 고정 (794px × 1123px) - 내부엔 절대 버튼이 없음 */
+        .page-viewport.active {
+            display: block;
+        }
+
+        /* [핵심] 온전한 A4 규격 (794px × 1123px) 고정 및 내부 요소 배치 */
         .a4-page {
             width: 794px;
             height: 1123px;
             background: #ffffff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            padding: 60px 70px;
-            display: none; /* 기본은 숨기고 현재 페이지면 보임 */
-            flex-direction: column;
-            position: relative;
-            border-radius: 4px;
-        }
-
-        .a4-page.active {
+            padding: 55px 65px;
             display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: 4px;
         }
 
         /* 템플릿 내부 레이아웃 */
         .template-header {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 15px;
             flex-shrink: 0;
         }
 
         /* 세로로 길지 않고 콤팩트한 그림 칸 */
         .image-box {
             width: 100%;
-            height: 140px; 
+            height: 135px; 
             background: #f1f5f9;
             border: 2px dashed #cbd5e1;
             border-radius: 6px;
@@ -121,7 +126,7 @@
         .image-box span {
             color: #64748b;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             text-align: center;
             padding: 0 10px;
         }
@@ -129,7 +134,7 @@
         /* 작가이름, 커미주 */
         .author-info {
             text-align: right;
-            font-size: 14px;
+            font-size: 13px;
             color: #475569;
             font-weight: 600;
             outline: none;
@@ -142,17 +147,17 @@
 
         /* 제목 및 부제목 */
         .title-area {
-            margin-bottom: 8px;
+            margin-bottom: 5px;
         }
         .main-title {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             color: #0f172a;
             outline: none;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .sub-title {
-            font-size: 14px;
+            font-size: 13px;
             color: #475569;
             outline: none;
         }
@@ -164,8 +169,8 @@
         /* 본문 내용 영역 (글이 많이 들어가도록 최적화된 명조체 공간) */
         .content-area {
             font-family: 'Noto Serif KR', serif;
-            font-size: 14px;
-            line-height: 1.85;
+            font-size: 13.5px;
+            line-height: 1.8;
             color: #1e293b;
             text-align: justify;
             word-break: break-all;
@@ -180,16 +185,19 @@
             background: #f8fafc;
         }
 
+        /* 모바일 등 화면이 작아질 때 A4 비율을 유지한 채 쏙 들어가도록 자동 축소하는 스크립트 대응 스타일 */
         @media print {
             body { background: none; padding: 0; }
             .control-panel { display: none; }
-            .a4-page { 
-                display: flex !important;
-                box-shadow: none; 
-                margin: 0; 
-                page-break-after: always; 
-                width: 794px;
-                height: 1123px;
+            .page-viewport {
+                display: block !important;
+                box-shadow: none;
+                transform: none !important;
+                margin: 0;
+                page-break-after: always;
+            }
+            .a4-page {
+                position: relative;
             }
         }
     </style>
@@ -198,15 +206,17 @@
 
     <!-- 상단 제어 바 (페이지 전환 및 추가 기능 모음) -->
     <div class="control-panel">
-        <button id="prevBtn" onclick="changePage(-1)">‹ 이전 페이지</button>
+        <button id="prevBtn" onclick="changePage(-1)">‹ 이전</button>
         <span id="pageIndicator" class="page-indicator">1 / 1</span>
-        <button id="nextBtn" onclick="changePage(1)">다음 페이지 ›</button>
-        <button onclick="addPage()">＋ 페이지 추가</button>
-        <button class="btn-print" onclick="window.print()">🖨 인쇄 / PDF</button>
+        <button id="nextBtn" onclick="changePage(1)">다음 ›</button>
+        <button onclick="addPage()">＋ 추가</button>
+        <button class="btn-print" onclick="window.print()">🖨 인쇄</button>
     </div>
 
-    <!-- A4 문서들이 렌더링될 컨테이너 -->
-    <div id="documentContainer" class="document-container"></div>
+    <!-- A4 문서 뷰포트 (비율 유지 축소가 적용되는 자리) -->
+    <div id="pageViewport" class="page-viewport">
+        <div id="documentContainer" style="width: 100%; height: 100%;"></div>
+    </div>
 
     <input type="file" id="imageSelector" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
 
@@ -217,12 +227,29 @@
                 author: '작가이름, 커미주',
                 title: '제목을 입력하세요',
                 subtitle: '부제 및 상세 설명을 입력하세요',
-                content: '온전한 A4 용지 규격 안에서 깔끔하게 작성되는 템플릿입니다. 종이 내부에는 불필요한 글씨나 버튼이 전혀 없고, 오직 상단 제어 패널을 통해 페이지를 넘길 수 있습니다.'
+                content: '온전한 A4 비율(794×1123)이 철저히 유지되면서도, 스마트폰 화면 크기에 맞춰 비율 그대로 쏙 축소되어 절대 잘리지 않습니다.'
             }
         ];
 
         let currentPageIndex = 0;
         let activeImagePageIndex = null;
+
+        // 화면 크기에 맞춰 A4 용지(794px)를 비율 유지하며 자동 축소하는 함수
+        function adjustA4Scale() {
+            const viewport = document.getElementById('pageViewport');
+            const screenWidth = window.innerWidth - 20; // 좌우 여백 고려
+            
+            if (screenWidth < 794) {
+                let scale = screenWidth / 794;
+                viewport.style.transform = `scale(${scale})`;
+                viewport.style.transformOrigin = 'top center';
+                // 축소된 만큼 부모 컨테이너의 높이도 비례해서 잡아줌
+                viewport.style.marginBottom = `${(1123 * (1 - scale))}px`;
+            } else {
+                viewport.style.transform = 'none';
+                viewport.style.marginBottom = '0px';
+            }
+        }
 
         function renderDocument() {
             const container = document.getElementById('documentContainer');
@@ -231,19 +258,19 @@
             let totalPages = pagesData.length;
             if (currentPageIndex >= totalPages) currentPageIndex = totalPages - 1;
 
-            pagesData.forEach((pageData, index) => {
-                let pageEl = createPageElement(index, pageData);
-                if (index === currentPageIndex) {
-                    pageEl.classList.add('active');
-                }
-                container.appendChild(pageEl);
-            });
+            let pageData = pagesData[currentPageIndex];
+            let pageEl = createPageElement(currentPageIndex, pageData);
+            container.appendChild(pageEl);
+
+            // 뷰포트 활성화
+            document.getElementById('pageViewport').classList.add('active');
 
             // 상단 컨트롤러 상태 업데이트
             document.getElementById('pageIndicator').innerText = `${currentPageIndex + 1} / ${totalPages}`;
             document.getElementById('prevBtn').disabled = currentPageIndex === 0;
             document.getElementById('nextBtn').disabled = currentPageIndex === totalPages - 1;
 
+            adjustA4Scale();
             saveData();
         }
 
@@ -361,6 +388,10 @@
 
         window.onload = () => {
             renderDocument();
+        };
+
+        window.onresize = () => {
+            adjustA4Scale();
         };
     </script>
 </body>
