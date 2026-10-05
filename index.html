@@ -3,11 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PairMaker - Fixed Version</title>
-    <!-- 폰트 로드 안정성 확보 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <title>PairMaker - Final Fix</title>
     
     <style>
         * {
@@ -18,7 +14,7 @@
 
         body {
             background-color: #dcdcdc;
-            font-family: 'Pretendard', sans-serif !important;
+            font-family: 'Apple SD Gothic Neo', 'Pretendard', 'Malgun Gothic', sans-serif;
             color: #111111;
             display: flex;
             flex-direction: column;
@@ -54,8 +50,7 @@
             font-size: 12px;
             background-color: #ffffff;
             color: #111111;
-            transition: all 0.2s;
-            font-family: 'Pretendard', sans-serif !important;
+            font-family: inherit;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -64,7 +59,6 @@
         .control-panel button:disabled { border-color: #cccccc; background-color: #f0f0f0; color: #aaaaaa; cursor: not-allowed; }
 
         .page-indicator {
-            font-family: 'Pretendard', sans-serif !important;
             font-weight: 700;
             font-size: 13px;
             color: #222222;
@@ -73,10 +67,7 @@
         }
 
         .btn-print-save { background-color: #111111 !important; color: #ffffff !important; }
-        .btn-print-save:hover { background-color: #333333 !important; }
-
         .btn-delete-page { border-color: #c93b3b !important; color: #c93b3b !important; }
-        .btn-delete-page:hover { background-color: #c93b3b !important; color: #ffffff !important; }
 
         .document-container {
             display: flex;
@@ -129,7 +120,6 @@
             object-fit: cover;
         }
         .image-box span {
-            font-family: 'Pretendard', sans-serif !important;
             color: #333333;
             font-weight: 600;
             font-size: 14px;
@@ -138,7 +128,7 @@
         }
 
         .author-info {
-            font-family: 'Pretendard', sans-serif !important;
+            font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif;
             text-align: right;
             font-size: 15px;
             color: #222222;
@@ -146,36 +136,30 @@
             outline: none;
             padding: 2px;
         }
-        .author-info:focus {
-            background: #eaeaea;
-            border-radius: 4px;
-        }
+        .author-info:focus { background: #eaeaea; border-radius: 4px; }
 
         .title-area {
             margin-bottom: 6px;
         }
         .main-title {
-            font-family: 'Pretendard', sans-serif !important;
-            font-size: 26px !important;
-            font-weight: 900 !important;
+            font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif;
+            font-size: 26px;
+            font-weight: 900;
             color: #000000;
             outline: none;
             margin-bottom: 4px;
         }
         .sub-title {
-            font-family: 'Pretendard', sans-serif !important;
-            font-size: 17px !important;
-            font-weight: 700 !important;
+            font-family: 'Apple SD Gothic Neo', 'Pretendard', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
             color: #333333;
             outline: none;
         }
-        .main-title:focus, .sub-title:focus {
-            background: #eaeaea;
-            border-radius: 4px;
-        }
+        .main-title:focus, .sub-title:focus { background: #eaeaea; border-radius: 4px; }
 
         .content-area {
-            font-family: 'Gowun Batang', serif !important;
+            font-family: 'Batang', 'Gowun Batang', serif;
             font-size: 18px;
             line-height: 1.85;
             color: #111111;
@@ -188,21 +172,12 @@
             padding: 6px;
             border-radius: 4px;
         }
-        .content-area:focus {
-            background: #eaeaea;
-        }
+        .content-area:focus { background: #eaeaea; }
 
         @media print {
-            body { 
-                background: none !important; 
-                padding: 0 !important; 
-            }
-            .control-panel { 
-                display: none !important; 
-            }
-            .document-container { 
-                display: block !important; 
-            }
+            body { background: none !important; padding: 0 !important; }
+            .control-panel { display: none !important; }
+            .document-container { display: block !important; }
             .a4-page { 
                 display: flex !important;
                 border: none !important;
@@ -212,12 +187,9 @@
                 page-break-after: always; 
                 width: 100% !important;
                 height: 100vh !important;
-                position: relative !important;
                 padding: 40px !important;
             }
-            .a4-page:last-child {
-                page-break-after: avoid;
-            }
+            .a4-page:last-child { page-break-after: avoid; }
         }
     </style>
 </head>
@@ -230,7 +202,7 @@
         <button onclick="addPage()">＋ 추가</button>
         <button class="btn-delete-page" onclick="deleteCurrentPage()">삭제</button>
         <button onclick="exportDataFile()">💾 파일 백업</button>
-        <label for="importFileBtn">📂 파일 불러오기</label>
+        <label for="importFileBtn">📂 불러오기</label>
         <input type="file" id="importFileBtn" accept=".json" style="display:none;" onchange="importDataFile(event)">
         <button class="btn-print-save" onclick="window.print()">PDF로 저장</button>
     </div>
@@ -240,19 +212,19 @@
     <input type="file" id="imageSelector" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
 
     <script>
-        const STORAGE_KEY = 'pairmaker_v11_fixed_storage';
+        const STORAGE_KEY = 'pairmaker_v12_stable';
 
         let pagesData = [
             {
                 image: '',
                 author: '작가이름, 커미주',
-                title: '흑백 모노톤 제목 (두껍게)',
+                title: '흑백 모노톤 제목',
                 subtitle: '부제목 영역입니다',
-                content: '폰트와 저장이 정상 작동하도록 코드를 완전히 고정했습니다. 작성 후 [💾 파일 백업]을 눌러두시면 데이터 유실 걱정 없이 안전하게 보관하실 수 있습니다.'
+                content: '여기에 소설 본문을 작성하세요. 작성 중 [💾 파일 백업] 버튼을 누르면 현재 작성 중인 내용이 파일로 안전하게 저장됩니다.'
             }
         ];
 
-        // 안전한 데이터 불러오기
+        // 데이터 로드
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
@@ -261,9 +233,7 @@
                     pagesData = parsed;
                 }
             }
-        } catch (e) {
-            console.log('Storage read error:', e);
-        }
+        } catch (e) {}
 
         let currentPageIndex = 0;
         let activeImagePageIndex = null;
@@ -271,11 +241,9 @@
         function adjustA4Zoom() {
             const pages = document.querySelectorAll('.a4-page');
             const screenWidth = window.innerWidth - 20;
-            
             pages.forEach(page => {
                 if (screenWidth < 794) {
-                    let zoomRatio = screenWidth / 794;
-                    page.style.zoom = zoomRatio;
+                    page.style.zoom = screenWidth / 794;
                 } else {
                     page.style.zoom = '1';
                 }
@@ -286,8 +254,7 @@
             const container = document.getElementById('documentContainer');
             container.innerHTML = '';
 
-            let totalPages = pagesData.length;
-            if (currentPageIndex >= totalPages) currentPageIndex = totalPages - 1;
+            if (currentPageIndex >= pagesData.length) currentPageIndex = pagesData.length - 1;
             if (currentPageIndex < 0) currentPageIndex = 0;
 
             pagesData.forEach((pageData, index) => {
@@ -298,12 +265,11 @@
                 container.appendChild(pageEl);
             });
 
-            document.getElementById('pageIndicator').innerText = `${currentPageIndex + 1} / ${totalPages}`;
+            document.getElementById('pageIndicator').innerText = `${currentPageIndex + 1} / ${pagesData.length}`;
             document.getElementById('prevBtn').disabled = currentPageIndex === 0;
-            document.getElementById('nextBtn').disabled = currentPageIndex === totalPages - 1;
+            document.getElementById('nextBtn').disabled = currentPageIndex === pagesData.length - 1;
 
             adjustA4Zoom();
-            saveData();
         }
 
         function createPageElement(index, data) {
@@ -336,7 +302,7 @@
             authorDiv.innerText = data.author;
             authorDiv.oninput = (e) => {
                 pagesData[index].author = e.target.innerText;
-                saveData();
+                autoSave();
             };
             headerDiv.appendChild(authorDiv);
 
@@ -349,7 +315,7 @@
             titleInput.innerText = data.title;
             titleInput.oninput = (e) => {
                 pagesData[index].title = e.target.innerText;
-                saveData();
+                autoSave();
             };
 
             let subTitleInput = document.createElement('div');
@@ -358,13 +324,12 @@
             subTitleInput.innerText = data.subtitle;
             subTitleInput.oninput = (e) => {
                 pagesData[index].subtitle = e.target.innerText;
-                saveData();
+                autoSave();
             };
 
             titleArea.appendChild(titleInput);
             titleArea.appendChild(subTitleInput);
             headerDiv.appendChild(titleArea);
-
             pageDiv.appendChild(headerDiv);
 
             let contentDiv = document.createElement('div');
@@ -373,7 +338,7 @@
             contentDiv.innerText = data.content;
             contentDiv.oninput = (e) => {
                 pagesData[index].content = e.target.innerText;
-                saveData();
+                autoSave();
             };
             pageDiv.appendChild(contentDiv);
 
@@ -396,6 +361,7 @@
                 reader.onload = (e) => {
                     pagesData[activeImagePageIndex].image = e.target.result;
                     renderDocument();
+                    autoSave();
                 };
                 reader.readAsDataURL(file);
             }
@@ -407,11 +373,12 @@
                 author: '작가이름, 커미주',
                 title: '새로운 제목',
                 subtitle: '부제목',
-                content: '새로운 페이지의 내용입니다.'
+                content: '새로운 페이지 내용입니다.'
             });
             currentPageIndex = pagesData.length - 1;
             renderDocument();
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            autoSave();
         }
 
         function deleteCurrentPage() {
@@ -426,6 +393,7 @@
                 }
                 renderDocument();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                autoSave();
             }
         }
 
@@ -450,24 +418,21 @@
                             pagesData = imported;
                             currentPageIndex = 0;
                             renderDocument();
-                            alert('백업 파일을 성공적으로 불러왔습니다!');
-                        } else {
-                            alert('잘못된 백업 파일 형식입니다.');
+                            autoSave();
+                            alert('파일을 정상적으로 불러왔습니다!');
                         }
                     } catch (err) {
-                        alert('파일을 읽는 중 오류가 발생했습니다.');
+                        alert('파일 형식이 올바르지 않습니다.');
                     }
                 };
                 reader.readAsText(file);
             }
         }
 
-        function saveData() {
+        function autoSave() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(pagesData));
-            } catch (e) {
-                console.log('Storage save failed:', e);
-            }
+            } catch (e) {}
         }
 
         window.onload = () => {
