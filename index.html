@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>작품 페이지 편집기</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#e9e9e9;color:#111;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",Arial,sans-serif}
+.top{position:sticky;top:0;z-index:50;background:white;border-bottom:1px solid #ddd;padding:10px 12px;display:flex;gap:7px;align-items:center;justify-content:space-between}
+.top b{font-size:14px}.top .buttons{display:flex;gap:5px}.top button,.bottom button{border:1px solid #ccc;background:#fff;border-radius:9px;padding:9px 11px;font-weight:700}
+.stage{padding:16px 10px 100px}.paper{width:min(100%,760px);margin:auto;background:#fff;min-height:100vh;padding:38px 30px;box-shadow:0 2px 14px #0001}
+.cover{width:100%;height:190px;background:#aaa;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:2px;cursor:pointer}.cover img{width:100%;height:100%;object-fit:cover;display:none}.cover span{color:white;font-size:42px;font-weight:800}
+.author{text-align:right;font-size:19px;font-weight:700;margin:22px 0 90px}
+h1{font-size:44px;line-height:1.15;margin:0 0 20px;letter-spacing:-.05em}h2{font-size:25px;margin:0 0 55px;line-height:1.4}.text{white-space:pre-wrap;word-break:keep-all;line-height:1.9;outline:none}.body{font-size:18px}
+.block{position:relative;margin:0 0 38px}.block.selected{outline:2px dashed #999;outline-offset:8px}.block img{width:100%;height:auto;display:block}
+[contenteditable=true]:focus{outline:2px solid #ddd;outline-offset:3px}
+.bottom{position:fixed;z-index:60;bottom:max(10px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#111;border-radius:14px;padding:8px;display:flex;gap:6px;box-shadow:0 6px 24px #0004}.bottom button{font-size:12px}
+#picker{position:fixed;width:1px;height:1px;opacity:0;pointer-events:none}
+.toast{position:fixed;z-index:100;top:72px;left:50%;transform:translateX(-50%);background:#111;color:#fff;border-radius:9px;padding:9px 12px;font-size:13px;display:none}
+@media(max-width:600px){.paper{padding:25px 19px}.cover{height:135px}.cover span{font-size:30px}.author{margin-bottom:65px;font-size:17px}h1{font-size:35px}h2{font-size:21px;margin-bottom:42px}.body{font-size:16px}.bottom{width:calc(100% - 20px);justify-content:center}.bottom button{padding:10px 9px}}
+</style>
+</head>
+<body>
+<header class="top">
+<b>작품 페이지 편집기</b>
+<div class="buttons"><button id="save">저장</button><button id="export">내보내기</button></div>
+</header>
+
+<div class="toast" id="toast"></div>
+
+<main class="stage">
+<section class="paper" id="paper">
+  <div class="cover" id="cover">
+    <img id="coverImage">
+    <span id="coverPlaceholder">대표 이미지<br><small style="font-size:14px">탭해서 추가</small></span>
+  </div>
+
+  <div class="author" contenteditable="true">작가이름, 커미션</div>
+  <h1 contenteditable="true">제목</h1>
+  <h2 contenteditable="true">부제목</h2>
+
+  <div id="content">
+    <div class="block" data-kind="text"><div class="text body" contenteditable="true">여기에 글을 입력하세요.
+
+긴 글도 계속 아래로 이어집니다.</div></div>
+  </div>
+</section>
+</main>
+
+<input id="picker" type="file" accept="image/*">
+
+<div class="bottom">
+<button id="addText">＋ 글</button>
+<button id="addImage">＋ 그림</button>
+<button id="delete">삭제</button>
+<button id="reset">초기화</button>
+</div>
+
+<script>
+const paper=document.getElementById("paper");
+const content=document.getElementById("content");
+const picker=document.getElementById("picker");
+const cover=document.getElementById("cover");
+const coverImage=document.getElementById("coverImage");
+const coverPlaceholder=document.getElementById("coverPlaceholder");
+const toast=document.getElementById("toast");
+let mode="content", selected=null;
+
+function message(t){toast.textContent=t;toast.style.display="block";setTimeout(()=>toast.style.display="none",1500)}
+function selectBlock(b){document.querySelectorAll(".selected").forEach(x=>x.classList.remove("selected"));selected=b;if(b)b.classList.add("selected")}
+content.addEventListener("click",e=>{let b=e.target.closest(".block");if(b&&!e.target.isContentEditable){selectBlock(b)}});
+
+cover.addEventListener("click",()=>{
+ mode="cover";
+ picker.value="";
+ picker.click();
+});
+
+document.getElementById("addImage").addEventListener("click",()=>{
+ mode="content";
+ picker.value="";
+ picker.click();
+});
+
+picker.addEventListener("change",function(){
+ const file=this.files && this.files[0];
+ if(!file)return;
+ if(!file.type.startsWith("image/")){message("이미지 파일을 선택해주세요.");return}
+ const reader=new FileReader();
+ reader.onload=function(e){
+   if(mode==="cover"){
+     coverImage.src=e.target.result;
+     coverImage.style.display="block";
+     coverPlaceholder.style.display="none";
+     message("대표 이미지가 추가됐어요.");
+   }else{
+     const b=document.createElement("div");
+     b.className="block";
+     b.dataset.kind="image";
+     const img=document.createElement("img");
+     img.src=e.target.result;
+     img.alt="";
+     b.appendChild(img);
+     content.appendChild(b);
+     selectBlock(b);
+     message("그림이 추가됐어요.");
+   }
+   saveLocal();
+ };
+ reader.readAsDataURL(file);
+});
+
+document.getElementById("addText").addEventListener("click",()=>{
+ const b=document.createElement("div");b.className="block";b.dataset.kind="text";
+ const d=document.createElement("div");d.className="text body";d.contentEditable="true";d.textContent="새 글을 입력하세요.";
+ b.appendChild(d);content.appendChild(b);selectBlock(b);d.focus();saveLocal();
+});
+
+document.getElementById("delete").addEventListener("click",()=>{
+ if(selected){selected.remove();selected=null;saveLocal();message("삭제했어요.");}
+});
+
+function saveLocal(){
+ localStorage.setItem("mobileEditorContent",content.innerHTML);
+ localStorage.setItem("mobileEditorTop",JSON.stringify({
+  author:document.querySelector(".author").innerHTML,
+  title:document.querySelector("h1").innerHTML,
+  subtitle:document.querySelector("h2").innerHTML
+ }));
+ localStorage.setItem("mobileEditorCover",coverImage.src||"");
+}
+function load(){
+ const top=JSON.parse(localStorage.getItem("mobileEditorTop")||"null");
+ if(top){document.querySelector(".author").innerHTML=top.author;document.querySelector("h1").innerHTML=top.title;document.querySelector("h2").innerHTML=top.subtitle}
+ const c=localStorage.getItem("mobileEditorContent");if(c)content.innerHTML=c;
+ const img=localStorage.getItem("mobileEditorCover");if(img){coverImage.src=img;coverImage.style.display="block";coverPlaceholder.style.display="none"}
+}
+load();
+
+document.getElementById("save").addEventListener("click",()=>{saveLocal();message("저장했어요.")});
+document.getElementById("reset").addEventListener("click",()=>{if(confirm("전부 초기화할까요?")){localStorage.clear();location.reload()}});
+
+document.getElementById("export").addEventListener("click",()=>{
+ const clone=paper.cloneNode(true);
+ clone.querySelectorAll("[contenteditable]").forEach(x=>x.removeAttribute("contenteditable"));
+ clone.querySelectorAll(".selected").forEach(x=>x.classList.remove("selected"));
+ const css=`body{margin:0;background:#e9e9e9;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",Arial,sans-serif}.paper{max-width:760px;min-height:100vh;margin:auto;background:#fff;padding:38px 30px;box-sizing:border-box}.cover{height:190px;background:#aaa;overflow:hidden}.cover img{width:100%;height:100%;object-fit:cover}.author{text-align:right;font-size:19px;font-weight:700;margin:22px 0 90px}h1{font-size:44px;line-height:1.15}h2{font-size:25px;margin-bottom:55px}.block{margin-bottom:38px}.text{white-space:pre-wrap;word-break:keep-all;line-height:1.9}.body{font-size:18px}.block img{width:100%;display:block;height:auto}`;
+ const doc='<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body>'+clone.outerHTML+'</body></html>';
+ const blob=new Blob([doc],{type:"text/html;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="작품페이지.html";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+});
+</script>
+</body>
+</html>
