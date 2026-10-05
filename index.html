@@ -4,14 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>A4 글 편집기</title>
+<title>A4 문서 편집기</title>
 
 <style>
 * {
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
 }
@@ -28,9 +29,7 @@ body {
     min-height: 100vh;
 }
 
-/* =========================
-   상단 메뉴
-========================= */
+/* 상단 버튼 */
 
 .toolbar {
     position: sticky;
@@ -40,7 +39,7 @@ body {
     width: 100%;
     padding: 10px;
 
-    background: rgba(255,255,255,0.96);
+    background: rgba(255,255,255,0.97);
     border-bottom: 1px solid #ccc;
 
     display: flex;
@@ -52,7 +51,7 @@ body {
 
 .toolbar button {
     border: 1px solid #aaa;
-    background: white;
+    background: #fff;
     color: #222;
 
     border-radius: 7px;
@@ -66,10 +65,6 @@ body {
     background: #f1f1f1;
 }
 
-.toolbar button:active {
-    transform: translateY(1px);
-}
-
 .page-number {
     min-width: 60px;
     text-align: center;
@@ -77,9 +72,7 @@ body {
     color: #555;
 }
 
-/* =========================
-   페이지 영역
-========================= */
+/* 페이지 */
 
 .page-wrapper {
     width: 100%;
@@ -88,15 +81,13 @@ body {
     padding: 30px 15px 80px;
 }
 
-/* A4 */
 .a4-page {
     width: 794px;
     height: 1123px;
 
-    background: #fff;
+    background: white;
 
-    box-shadow:
-        0 5px 25px rgba(0,0,0,0.15);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.15);
 
     position: relative;
 
@@ -112,9 +103,7 @@ body {
     display: flex;
 }
 
-/* =========================
-   이미지
-========================= */
+/* 이미지 */
 
 .image-area {
     width: 100%;
@@ -153,13 +142,10 @@ body {
     object-fit: cover;
 }
 
-/* =========================
-   작가
-========================= */
+/* 작가 */
 
 .author {
     font-family:
-        "Pretendard",
         -apple-system,
         BlinkMacSystemFont,
         "Apple SD Gothic Neo",
@@ -176,13 +162,10 @@ body {
     flex-shrink: 0;
 }
 
-/* =========================
-   제목
-========================= */
+/* 제목 */
 
 .title {
     font-family:
-        "Pretendard",
         -apple-system,
         BlinkMacSystemFont,
         "Apple SD Gothic Neo",
@@ -201,13 +184,10 @@ body {
     flex-shrink: 0;
 }
 
-/* =========================
-   부제목
-========================= */
+/* 부제목 */
 
 .subtitle {
     font-family:
-        "Pretendard",
         -apple-system,
         BlinkMacSystemFont,
         "Apple SD Gothic Neo",
@@ -228,13 +208,10 @@ body {
     flex-shrink: 0;
 }
 
-/* =========================
-   본문
-========================= */
+/* 본문 */
 
 .content {
     font-family:
-        "Noto Serif KR",
         "Batang",
         "AppleMyungjo",
         "Gowun Batang",
@@ -257,14 +234,11 @@ body {
     min-height: 0;
 }
 
-/* 편집 중인 곳 */
 [contenteditable="true"]:focus {
     outline: none;
 }
 
-/* =========================
-   모바일
-========================= */
+/* 모바일 */
 
 @media screen and (max-width: 850px) {
 
@@ -273,15 +247,9 @@ body {
         overflow: hidden;
     }
 
-    .a4-page {
-        transform-origin: top center;
-    }
-
 }
 
-/* =========================
-   인쇄
-========================= */
+/* 인쇄 */
 
 @media print {
 
@@ -314,12 +282,7 @@ body {
 </style>
 </head>
 
-
 <body>
-
-<!-- =========================
-     상단 메뉴
-========================= -->
 
 <div class="toolbar">
 
@@ -335,21 +298,14 @@ body {
 
     <button onclick="deletePage()">페이지 삭제</button>
 
-    <button onclick="saveDocument()">저장</button>
+    <button onclick="saveDocument()">💾 저장</button>
 
     <button onclick="window.print()">PDF 저장</button>
 
 </div>
 
-
-<!-- =========================
-     페이지
-========================= -->
-
 <div id="pageWrapper" class="page-wrapper"></div>
 
-
-<!-- 이미지 선택 -->
 <input
     type="file"
     id="imageInput"
@@ -357,11 +313,10 @@ body {
     style="display:none;"
 >
 
-
 <script>
 
 /* =====================================================
-   기본 데이터
+   문서 데이터
 ===================================================== */
 
 var pages = [
@@ -375,12 +330,11 @@ var pages = [
 ];
 
 var currentPage = 0;
-
 var imageTargetPage = null;
 
 
 /* =====================================================
-   페이지 표시
+   페이지 렌더링
 ===================================================== */
 
 function renderPages() {
@@ -396,7 +350,7 @@ function renderPages() {
         page.className = "a4-page";
 
         if (i === currentPage) {
-            page.className += " active";
+            page.classList.add("active");
         }
 
         page.setAttribute("data-page", i);
@@ -410,11 +364,11 @@ function renderPages() {
 
         imageArea.onclick = function() {
 
-            var pageIndex = Number(
+            var index = Number(
                 this.parentElement.getAttribute("data-page")
             );
 
-            imageTargetPage = pageIndex;
+            imageTargetPage = index;
 
             document.getElementById("imageInput").click();
         };
@@ -422,17 +376,18 @@ function renderPages() {
 
         if (pages[i].image) {
 
-            var image = document.createElement("img");
+            var img = document.createElement("img");
 
-            image.src = pages[i].image;
+            img.src = pages[i].image;
 
-            imageArea.appendChild(image);
+            imageArea.appendChild(img);
 
         } else {
 
             var imageText = document.createElement("span");
 
-            imageText.innerText = "이미지를 추가하려면 클릭";
+            imageText.textContent =
+                "이미지를 추가하려면 클릭";
 
             imageArea.appendChild(imageText);
         }
@@ -446,7 +401,7 @@ function renderPages() {
 
         author.contentEditable = "true";
 
-        author.innerText = pages[i].author;
+        author.textContent = pages[i].author;
 
         author.addEventListener("input", function() {
 
@@ -467,7 +422,7 @@ function renderPages() {
 
         title.contentEditable = "true";
 
-        title.innerText = pages[i].title;
+        title.textContent = pages[i].title;
 
         title.addEventListener("input", function() {
 
@@ -488,7 +443,7 @@ function renderPages() {
 
         subtitle.contentEditable = "true";
 
-        subtitle.innerText = pages[i].subtitle;
+        subtitle.textContent = pages[i].subtitle;
 
         subtitle.addEventListener("input", function() {
 
@@ -509,7 +464,7 @@ function renderPages() {
 
         content.contentEditable = "true";
 
-        content.innerText = pages[i].content;
+        content.textContent = pages[i].content;
 
         content.addEventListener("input", function() {
 
@@ -518,8 +473,6 @@ function renderPages() {
             );
 
             pages[index].content = this.innerText;
-
-            checkOverflow(index);
 
         });
 
@@ -533,9 +486,7 @@ function renderPages() {
         wrapper.appendChild(page);
     }
 
-
     updatePageNumber();
-
     resizePage();
 }
 
@@ -546,13 +497,13 @@ function renderPages() {
 
 function updatePageNumber() {
 
-    document.getElementById("pageNumber").innerText =
+    document.getElementById("pageNumber").textContent =
         (currentPage + 1) + " / " + pages.length;
 }
 
 
 /* =====================================================
-   이전 페이지
+   이전
 ===================================================== */
 
 function previousPage() {
@@ -567,7 +518,7 @@ function previousPage() {
 
 
 /* =====================================================
-   다음 페이지
+   다음
 ===================================================== */
 
 function nextPage() {
@@ -607,299 +558,408 @@ function addPage() {
 
 function deletePage() {
 
-    if (pages.length === 1) {
+    if (pages.length <= 1) {
 
         alert("페이지가 하나뿐이라 삭제할 수 없습니다.");
 
         return;
     }
 
-
-    var answer = confirm(
-        "현재 페이지를 삭제할까요?"
-    );
-
-    if (!answer) {
+    if (!confirm("현재 페이지를 삭제할까요?")) {
         return;
     }
 
-
     pages.splice(currentPage, 1);
 
-
     if (currentPage >= pages.length) {
-
         currentPage = pages.length - 1;
     }
-
 
     renderPages();
 }
 
 
 /* =====================================================
-   이미지 업로드
+   이미지 추가
 ===================================================== */
 
-document.getElementById("imageInput").addEventListener(
-    "change",
-    function(event) {
+document
+.getElementById("imageInput")
+.addEventListener("change", function(event) {
 
-        var file = event.target.files[0];
+    var file = event.target.files[0];
 
-        if (!file) {
-            return;
-        }
-
-
-        if (!file.type.startsWith("image/")) {
-
-            alert("이미지 파일만 넣을 수 있습니다.");
-
-            return;
-        }
-
-
-        var reader = new FileReader();
-
-
-        reader.onload = function(e) {
-
-            if (
-                imageTargetPage !== null &&
-                pages[imageTargetPage]
-            ) {
-
-                pages[imageTargetPage].image =
-                    e.target.result;
-
-                currentPage = imageTargetPage;
-
-                renderPages();
-            }
-        };
-
-
-        reader.readAsDataURL(file);
-
-
-        /* 같은 이미지를 다시 선택할 수 있도록 초기화 */
-
-        event.target.value = "";
+    if (!file) {
+        return;
     }
-);
+
+    if (!file.type.startsWith("image/")) {
+
+        alert("이미지 파일만 넣을 수 있습니다.");
+
+        return;
+    }
+
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        if (
+            imageTargetPage !== null &&
+            pages[imageTargetPage]
+        ) {
+
+            pages[imageTargetPage].image =
+                e.target.result;
+
+            currentPage = imageTargetPage;
+
+            renderPages();
+        }
+    };
+
+    reader.readAsDataURL(file);
+
+    event.target.value = "";
+});
 
 
 /* =====================================================
-   저장
+   ★ 진짜 파일로 저장
 ===================================================== */
 
 function saveDocument() {
 
-    try {
+    /* 현재 입력 내용 확실하게 반영 */
 
-        localStorage.setItem(
-            "a4_editor_pages",
-            JSON.stringify(pages)
-        );
+    var pageElements =
+        document.querySelectorAll(".a4-page");
 
-        localStorage.setItem(
-            "a4_editor_current_page",
-            String(currentPage)
-        );
+    for (var i = 0; i < pageElements.length; i++) {
 
-        alert("저장되었습니다.");
+        var page = pageElements[i];
 
-    } catch (error) {
+        var author =
+            page.querySelector(".author");
 
-        alert(
-            "저장하지 못했습니다.\n\n" +
-            "브라우저 저장 공간이 부족할 수 있습니다."
-        );
+        var title =
+            page.querySelector(".title");
+
+        var subtitle =
+            page.querySelector(".subtitle");
+
+        var content =
+            page.querySelector(".content");
+
+
+        if (pages[i]) {
+
+            pages[i].author =
+                author.innerText;
+
+            pages[i].title =
+                title.innerText;
+
+            pages[i].subtitle =
+                subtitle.innerText;
+
+            pages[i].content =
+                content.innerText;
+        }
     }
-}
 
 
-/* =====================================================
-   자동 불러오기
-===================================================== */
+    /* 문서 HTML 생성 */
 
-function loadDocument() {
-
-    try {
-
-        var savedPages =
-            localStorage.getItem("a4_editor_pages");
-
-        var savedPage =
-            localStorage.getItem("a4_editor_current_page");
+    var pagesHTML = "";
 
 
-        if (savedPages) {
+    for (var j = 0; j < pages.length; j++) {
 
-            var parsed =
-                JSON.parse(savedPages);
+        var p = pages[j];
 
+        var imageHTML = "";
 
-            if (
-                Array.isArray(parsed) &&
-                parsed.length > 0
-            ) {
+        if (p.image) {
 
-                pages = parsed;
-            }
+            imageHTML =
+                '<div class="image-area">' +
+                '<img src="' + p.image + '">' +
+                '</div>';
+
+        } else {
+
+            imageHTML =
+                '<div class="image-area empty"></div>';
         }
 
 
-        if (savedPage !== null) {
+        pagesHTML +=
+            '<section class="page">' +
 
-            var number =
-                parseInt(savedPage, 10);
+            imageHTML +
 
+            '<div class="author">' +
+            escapeHTML(p.author) +
+            '</div>' +
 
-            if (
-                !isNaN(number) &&
-                number >= 0 &&
-                number < pages.length
-            ) {
+            '<div class="title">' +
+            escapeHTML(p.title) +
+            '</div>' +
 
-                currentPage = number;
-            }
-        }
+            '<div class="subtitle">' +
+            escapeHTML(p.subtitle) +
+            '</div>' +
 
-    } catch (error) {
+            '<div class="content">' +
+            escapeHTML(p.content)
+                .replace(/\n/g, "<br>") +
+            '</div>' +
 
-        console.log(
-            "저장된 문서를 불러오지 못했습니다."
-        );
+            '</section>';
     }
+
+
+    /* 저장되는 완성 HTML */
+
+    var finalHTML = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>내 문서</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 30px 0;
+    background: #ddd;
+    color: #222;
+}
+
+.page {
+    width: 794px;
+    height: 1123px;
+
+    background: white;
+
+    margin: 0 auto 30px;
+
+    padding: 65px 70px;
+
+    overflow: hidden;
+
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+
+    page-break-after: always;
+}
+
+.image-area {
+    width: 100%;
+    height: 180px;
+
+    margin-bottom: 22px;
+
+    border-radius: 5px;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-area.empty {
+    display: none;
+}
+
+.image-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.author {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Apple SD Gothic Neo",
+        "Malgun Gothic",
+        sans-serif;
+
+    font-size: 12px;
+    color: #888;
+
+    margin-bottom: 12px;
+}
+
+.title {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Apple SD Gothic Neo",
+        "Malgun Gothic",
+        sans-serif;
+
+    font-size: 28px;
+    font-weight: 700;
+
+    line-height: 1.35;
+
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Apple SD Gothic Neo",
+        "Malgun Gothic",
+        sans-serif;
+
+    font-size: 16px;
+
+    color: #777;
+
+    margin-bottom: 24px;
+}
+
+.content {
+    font-family:
+        "Batang",
+        "AppleMyungjo",
+        "Gowun Batang",
+        serif;
+
+    font-size: 16px;
+
+    line-height: 1.9;
+}
+
+@media print {
+
+    body {
+        background: white;
+        padding: 0;
+    }
+
+    .page {
+        margin: 0;
+
+        width: 210mm;
+        height: 297mm;
+
+        box-shadow: none;
+    }
+}
+
+@media screen and (max-width: 850px) {
+
+    body {
+        overflow-x: hidden;
+    }
+
+    .page {
+        transform-origin: top center;
+
+        transform:
+            scale(
+                calc((100vw - 20px) / 794)
+            );
+
+        margin-bottom:
+            calc(
+                -1123px +
+                (1123px * ((100vw - 20px) / 794))
+            );
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+${pagesHTML}
+
+</body>
+</html>`;
+
+
+    /* Blob 생성 */
+
+    var blob = new Blob(
+        [finalHTML],
+        {
+            type: "text/html;charset=utf-8"
+        }
+    );
+
+
+    /* 다운로드 */
+
+    var url =
+        URL.createObjectURL(blob);
+
+    var link =
+        document.createElement("a");
+
+    link.href = url;
+
+    link.download =
+        "내_A4_문서.html";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    setTimeout(function() {
+
+        URL.revokeObjectURL(url);
+
+    }, 1000);
+
+
+    alert(
+        "저장되었습니다!\n\n" +
+        "내_A4_문서.html 파일을 확인하세요."
+    );
 }
 
 
 /* =====================================================
-   글이 페이지 밖으로 넘치는지 확인
+   HTML 특수문자 처리
 ===================================================== */
 
-function checkOverflow(index) {
+function escapeHTML(text) {
 
-    var page =
-        document.querySelector(
-            '.a4-page[data-page="' + index + '"]'
-        );
-
-
-    if (!page) {
-        return;
+    if (!text) {
+        return "";
     }
 
-
-    var content =
-        page.querySelector(".content");
-
-
-    if (!content) {
-        return;
-    }
-
-
-    /*
-       본문이 페이지 높이를 넘으면
-       마지막 문장 일부를 다음 페이지로 이동
-    */
-
-    if (content.scrollHeight > content.clientHeight) {
-
-        var text = pages[index].content;
-
-        var splitPoint =
-            findSplitPoint(content);
-
-
-        if (
-            splitPoint > 0 &&
-            splitPoint < text.length
-        ) {
-
-            var firstText =
-                text.substring(0, splitPoint);
-
-            var secondText =
-                text.substring(splitPoint);
-
-
-            pages[index].content =
-                firstText.trim();
-
-
-            if (!pages[index + 1]) {
-
-                pages.push({
-                    image: "",
-                    author: "",
-                    title: "",
-                    subtitle: "",
-                    content: ""
-                });
-            }
-
-
-            pages[index + 1].content =
-                secondText.trim();
-
-
-            renderPages();
-        }
-    }
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 
 /* =====================================================
-   적당한 위치에서 본문 자르기
-===================================================== */
-
-function findSplitPoint(element) {
-
-    var text = element.innerText;
-
-    if (text.length < 50) {
-        return text.length;
-    }
-
-
-    var estimated =
-        Math.floor(text.length * 0.92);
-
-
-    var newline =
-        text.lastIndexOf("\n", estimated);
-
-
-    if (
-        newline > text.length * 0.5
-    ) {
-
-        return newline;
-    }
-
-
-    var space =
-        text.lastIndexOf(" ", estimated);
-
-
-    if (
-        space > text.length * 0.5
-    ) {
-
-        return space;
-    }
-
-
-    return estimated;
-}
-
-
-/* =====================================================
-   모바일에서 A4 크기 자동 축소
+   모바일 A4 크기
 ===================================================== */
 
 function resizePage() {
@@ -911,7 +971,6 @@ function resizePage() {
         return;
     }
 
-
     if (window.innerWidth < 850) {
 
         var available =
@@ -920,18 +979,17 @@ function resizePage() {
         var scale =
             available / 794;
 
-
         if (scale > 1) {
             scale = 1;
         }
 
-
         page.style.transform =
             "scale(" + scale + ")";
 
-
         page.style.marginBottom =
-            "-" + (1123 * (1 - scale)) + "px";
+            "-" +
+            (1123 * (1 - scale)) +
+            "px";
 
     } else {
 
@@ -945,8 +1003,6 @@ function resizePage() {
 /* =====================================================
    시작
 ===================================================== */
-
-loadDocument();
 
 renderPages();
 
